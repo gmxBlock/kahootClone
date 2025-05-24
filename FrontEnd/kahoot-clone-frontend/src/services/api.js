@@ -27,12 +27,7 @@ export const deleteQuiz = async (quizId) => {
   return response.data;
 };
 
-export const loginUser = async (credentials) => {
-  const response = await axios.post(`${API_URL}/auth/login`, credentials);
-  return response.data;
-};
-
-export const registerUser = async (userData) => {
-  const response = await axios.post(`${API_URL}/auth/register`, userData);
+export const getUserProfile = async (userId) => {
+  const response = await axios.get(`${API_URL}/user/profile`);
   return response.data;
 };
