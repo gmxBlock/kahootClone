@@ -316,39 +316,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  position: relative;
-  z-index: 2;
-}
-
-/* Cursor Following Shine Effect */
-.cursor-follow-shine {
-  --mouse-x: 0px;
-  --mouse-y: 0px;
-  position: relative;
-}
-
-.cursor-follow-shine::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-    300px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255, 255, 255, 0.15) 0%,
-    rgba(255, 255, 255, 0.08) 25%,
-    rgba(192, 192, 192, 0.05) 50%,
-    transparent 70%
-  );
-  pointer-events: none;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.cursor-follow-shine:hover::after {
-  opacity: 1;
+  position: relative;  z-index: 2;
 }
 
 /* How It Works Section */
