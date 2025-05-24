@@ -176,7 +176,7 @@ const TermsOfService = () => {
         <section>
           <h2>13. Governing Law</h2>
           <p>
-            These Terms shall be governed by and construed in accordance with the laws of [Your Jurisdiction], 
+            These Terms shall be governed by and construed in accordance with the laws of Germany, 
             without regard to its conflict of law provisions.
           </p>
         </section>
@@ -187,8 +187,7 @@ const TermsOfService = () => {
             If you have any questions about these Terms of Service, please contact us at:
           </p>
           <ul>
-            <li>Email: legal@thinkaton.com</li>
-            <li>Address: [Your Business Address]</li>
+            <li>Email: jakob@masfelder.de</li>
           </ul>
         </section>
       </div>

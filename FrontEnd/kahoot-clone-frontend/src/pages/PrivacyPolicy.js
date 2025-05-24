@@ -130,8 +130,7 @@ const PrivacyPolicy = () => {
             If you have any questions about this privacy policy or our data practices, please contact us at:
           </p>
           <ul>
-            <li>Email: privacy@thinkaton.com</li>
-            <li>Address: [Your Business Address]</li>
+            <li>Email: jakob@masfelder.de</li>
           </ul>
         </section>
       </div>
