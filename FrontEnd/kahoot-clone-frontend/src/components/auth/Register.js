@@ -62,7 +62,7 @@ const Register = () => {
   return (
     <div className="register-container">
       <div className="register-card">
-        <h2>Join Us Today!</h2>
+        <h2 className="register-title">Join Us Today!</h2>
         <p className="register-subtitle">Create your account to get started</p>
         
         {error && <div className="error-message">{error}</div>}
