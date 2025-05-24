@@ -42,7 +42,7 @@ const GameProvider = ({ children }) => {
   };
 
   return (
-    <GameContext.Provider value={{ gameState, startGame, answerQuestion }}>
+    <GameContext.Provider value={{ gameState, setGameState, startGame, answerQuestion }}>
       {children}
     </GameContext.Provider>
   );

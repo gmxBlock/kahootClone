@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { GameContext } from '../context/GameContext';
-import { socket } from '../services/socket';
+import socket from '../services/socket';
 
 const useGame = () => {
   const { gameState, setGameState } = useContext(GameContext);
@@ -42,6 +42,18 @@ const useGame = () => {
     startGame,
     submitAnswer,
     endGame,
+    // Properties expected by GamePlay component
+    currentQuestion: gameState?.questions?.[gameState?.currentQuestionIndex] || null,
+    nextQuestion: () => {
+      if (gameState?.questions && gameState?.currentQuestionIndex < gameState.questions.length - 1) {
+        setGameState(prev => ({
+          ...prev,
+          currentQuestionIndex: prev.currentQuestionIndex + 1
+        }));
+      }
+    },
+    gameOver: gameState?.currentQuestionIndex >= (gameState?.questions?.length - 1) || false,
+    score: gameState?.score || 0,
   };
 };
 
