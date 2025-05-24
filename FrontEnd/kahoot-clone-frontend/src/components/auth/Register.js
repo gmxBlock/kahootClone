@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../services/auth';
 import './Register.css';
 
@@ -10,7 +10,7 @@ const Register = () => {
     password: '',
   });
   const [error, setError] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +23,7 @@ const Register = () => {
 
     try {
       await registerUser(formData);
-      history.push('/login'); // Redirect to login after successful registration
+      navigate('/login'); // Redirect to login after successful registration
     } catch (err) {
       setError(err.response.data.message || 'Registration failed');
     }

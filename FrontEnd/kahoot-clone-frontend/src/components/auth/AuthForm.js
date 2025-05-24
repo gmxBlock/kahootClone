@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { login, register } from '../../services/auth';
 import './AuthForm.css';
 
@@ -7,7 +7,7 @@ const AuthForm = ({ isLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +19,7 @@ const AuthForm = ({ isLogin }) => {
       } else {
         await register(email, password);
       }
-      history.push('/dashboard');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred');
     }

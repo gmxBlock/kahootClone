@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
@@ -16,16 +16,16 @@ const App = () => {
   return (
     <Router>
       <Header />
-      <Switch>
-        <Route path="/" exact component={Home} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/game-room" component={GameRoom} />
-        <Route path="/profile" component={Profile} />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-        <Route path="/quizzes" component={QuizList} />
-        <Route path="/game-lobby" component={GameLobby} />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/game-room" element={<GameRoom />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/quizzes" element={<QuizList />} />
+        <Route path="/game-lobby" element={<GameLobby />} />
+      </Routes>
       <Footer />
     </Router>
   );
