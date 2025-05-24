@@ -24,7 +24,7 @@ const Profile = () => {
           username: 'Jakob Masfelder',
           email: 'jakob@masfelder.de',
           bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.',
-          avatar: '/api/placeholder/150/150',
+          avatar: 'https://via.placeholder.com/150/667eea/ffffff?text=JM',
           stats: {
             gamesPlayed: 0,
             gamesWon: 0,
@@ -109,7 +109,7 @@ const Profile = () => {
       <div className="profile-header">
         <div className="profile-avatar">
           <img 
-            src={profileData?.avatar || '/api/placeholder/150/150'} 
+            src={profileData?.avatar || 'https://via.placeholder.com/150/667eea/ffffff?text=U'} 
             alt={profileData?.username || 'User Avatar'} 
           />
         </div>
