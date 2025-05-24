@@ -1,0 +1,84 @@
+/khahoot-clone-frontend/kahoot-clone-frontend/src/styles/components.css
+
+/* Component styles */
+
+/* Header styles */
+.header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+  text-align: center;
+}
+
+/* Footer styles */
+.footer {
+  background-color: #282c34;
+  padding: 10px;
+  color: white;
+  text-align: center;
+}
+
+/* Loading spinner styles */
+.loading-spinner {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Button styles */
+.button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.button:hover {
+  background-color: #2980b9;
+}
+
+/* Quiz card styles */
+.quiz-card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 15px;
+  margin: 10px 0;
+  transition: box-shadow 0.3s;
+}
+
+.quiz-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Game lobby styles */
+.game-lobby {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+/* Leaderboard styles */
+.leaderboard {
+  list-style-type: none;
+  padding: 0;
+}
+
+.leaderboard-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
