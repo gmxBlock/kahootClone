@@ -1,22 +1,39 @@
 /* Register Component Styles */
 .register-container {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 25%, #2d4a63 75%, #415a77 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(64, 224, 208, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .register-card {
-  background: white;
+  background: rgba(13, 27, 42, 0.85);
+  backdrop-filter: blur(25px);
   padding: 3rem;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  border-radius: 28px;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(255, 107, 107, 0.1);
   width: 100%;
   max-width: 500px;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 .register-card::before {
@@ -26,20 +43,21 @@
   left: 0;
   right: 0;
   height: 5px;
-  background: linear-gradient(90deg, #4ecdc4, #44a08d, #96ceb4, #45b7d1);
+  background: linear-gradient(90deg, #ff6b6b 0%, #ffa726 50%, #ff7043 100%);
 }
 
 .register-title {
   text-align: center;
-  color: #333;
+  color: #ffffff;
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .register-subtitle {
   text-align: center;
-  color: #666;
+  color: #b0c4de;
   margin-bottom: 2.5rem;
   font-size: 1.1rem;
 }
@@ -63,18 +81,27 @@
 .input-group input {
   width: 100%;
   padding: 1.2rem 1rem;
-  border: 2px solid #e1e5e9;
-  border-radius: 12px;
+  border: 2px solid rgba(255, 107, 107, 0.3);
+  border-radius: 16px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #f8f9fa;
+  background: rgba(13, 27, 42, 0.6);
+  color: #ffffff;
+  box-sizing: border-box;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #4ecdc4;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+  border-color: #ff6b6b;
+  background: rgba(13, 27, 42, 0.8);
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15),
+              0 0 20px rgba(255, 107, 107, 0.2);
+  transform: translateY(-2px);
+}
+
+.input-group input::placeholder {
+  color: #6b8aa0;
+  font-style: italic;
 }
 
 .input-group label {
@@ -82,19 +109,21 @@
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
+  color: #b0c4de;
   font-size: 1rem;
   pointer-events: none;
   transition: all 0.3s ease;
-  background: white;
+  background: rgba(13, 27, 42, 0.9);
   padding: 0 0.5rem;
+  border-radius: 4px;
 }
 
 .input-group input:focus + label,
 .input-group input:not(:placeholder-shown) + label {
   top: 0;
   font-size: 0.8rem;
-  color: #4ecdc4;
+  color: #ff6b6b;
+  background: rgba(13, 27, 42, 0.95);
 }
 
 .password-strength {
@@ -103,15 +132,15 @@
 }
 
 .password-strength.weak {
-  color: #e74c3c;
+  color: #ff6b6b;
 }
 
 .password-strength.medium {
-  color: #f39c12;
+  color: #ffa726;
 }
 
 .password-strength.strong {
-  color: #27ae60;
+  color: #4caf50;
 }
 
 .terms-checkbox {
@@ -123,35 +152,41 @@
 
 .terms-checkbox input[type="checkbox"] {
   margin-top: 0.2rem;
+  accent-color: #ff6b6b;
 }
 
 .terms-checkbox label {
   font-size: 0.9rem;
-  color: #666;
+  color: #b0c4de;
   line-height: 1.4;
 }
 
 .terms-checkbox a {
-  color: #4ecdc4;
+  color: #ff6b6b;
   text-decoration: none;
+  transition: all 0.3s ease;
 }
 
 .terms-checkbox a:hover {
   text-decoration: underline;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
 }
 
 .register-button {
   padding: 1.2rem;
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff7043 50%, #f4511e 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
 }
 
 .register-button::before {
@@ -161,7 +196,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: left 0.5s ease;
 }
 
@@ -170,12 +205,14 @@
 }
 
 .register-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(78, 205, 196, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(255, 107, 107, 0.4),
+              0 0 30px rgba(255, 107, 107, 0.3);
+  background: linear-gradient(135deg, #ff7043 0%, #f4511e 50%, #d84315 100%);
 }
 
 .register-button:disabled {
-  background: #ccc;
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -185,18 +222,19 @@
   text-align: center;
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e1e5e9;
+  border-top: 1px solid rgba(255, 107, 107, 0.2);
 }
 
 .register-footer a {
-  color: #4ecdc4;
+  color: #ff6b6b;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .register-footer a:hover {
-  color: #44a08d;
+  color: #ff7043;
+  text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
 }
 
 /* Responsive Design */
