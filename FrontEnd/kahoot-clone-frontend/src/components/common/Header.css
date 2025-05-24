@@ -60,6 +60,11 @@
   color: white !important;
   font-weight: 600;
   box-shadow: 0 4px 15px rgba(64, 224, 208, 0.2);
+  padding: 0.75rem 1.5rem;
+  display: inline-block;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border-radius: 25px;
 }
 
 .login-link:hover {
@@ -67,6 +72,8 @@
   color: white !important;
   box-shadow: 0 6px 20px rgba(64, 224, 208, 0.4);
   border-color: #40e0d0;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 .register-link {
