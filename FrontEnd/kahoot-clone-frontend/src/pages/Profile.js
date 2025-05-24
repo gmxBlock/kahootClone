@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { getUserProfile } from '../services/api';
 import './Profile.css';
@@ -14,30 +14,6 @@ const Profile = () => {
     email: '',
     bio: ''
   });
-  const statsRef = useRef(null);
-
-  // Cursor following shine effect
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (statsRef.current) {
-        const rect = statsRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        // Update CSS variables for cursor position
-        statsRef.current.style.setProperty('--mouse-x', `${x}px`);
-        statsRef.current.style.setProperty('--mouse-y', `${y}px`);
-      }
-    };
-
-    const statsElement = statsRef.current;
-    if (statsElement) {
-      statsElement.addEventListener('mousemove', handleMouseMove);
-      return () => {
-        statsElement.removeEventListener('mousemove', handleMouseMove);
-      };
-    }
-  }, [profileData]); // Re-run when profileData changes
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -182,7 +158,7 @@ const Profile = () => {
 
       <div className="profile-content">
         {/* Stats Section */}
-        <div className="stats-section cursor-follow-shine" ref={statsRef}>
+        <div className="stats-section">
           <h2>Statistics</h2>
           <div className="stats-grid">
             <div className="stat-card">
