@@ -227,7 +227,7 @@ const Profile = () => {
             <div className="activity-item">
               <div className="activity-icon">🎮</div>
               <div className="activity-content">
-                <p>Welcome to Kahoot Clone!</p>
+                <p>Welcome to Thinkaton!</p>
                 <span className="activity-time">Just now</span>
               </div>
             </div>

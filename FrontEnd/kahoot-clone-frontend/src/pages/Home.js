@@ -46,7 +46,7 @@ const Home = () => {
       <div className="hero-section">
         <div className="hero-background"></div>
         <div className="hero-content">
-          <h1 className="hero-title">Welcome to Kahoot Clone!</h1>
+          <h1 className="hero-title">Welcome to Thinkaton!</h1>
           <p className="hero-subtitle">Join quizzes, play games, and have fun with friends!</p>
           <div className="hero-actions">
             <button className="hero-button primary" onClick={handleStartPlaying}>

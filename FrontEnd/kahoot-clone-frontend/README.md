@@ -1,6 +1,6 @@
-# Kahoot Clone Frontend
+# Thinkaton Frontend
 
-This project is a frontend application for the Kahoot Clone, designed to work seamlessly with the backend server. It is built using React and provides a user-friendly interface for authentication, quiz management, and gameplay.
+This project is a frontend application for the Thinkaton, designed to work seamlessly with the backend server. It is built using React and provides a user-friendly interface for authentication, quiz management, and gameplay.
 
 ## Features
 
@@ -12,7 +12,7 @@ This project is a frontend application for the Kahoot Clone, designed to work se
 ## Project Structure
 
 ```
-kahoot-clone-frontend
+thinkaton-frontend
 ├── public
 │   ├── index.html          # Main HTML file
 │   └── manifest.json       # PWA metadata
@@ -36,7 +36,7 @@ kahoot-clone-frontend
 1. Clone the repository:
    ```
    git clone <repository-url>
-   cd kahoot-clone-frontend
+   cd thinkaton-frontend
    ```
 
 2. Install dependencies:

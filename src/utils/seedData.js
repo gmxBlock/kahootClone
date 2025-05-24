@@ -7,7 +7,7 @@ const seedData = async () => {
     console.log('🌱 Starting database seeding...');
 
     // Connect to database
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/kahoot-clone');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/thinkaton');
     console.log('📦 Connected to MongoDB');
 
     // Clear existing data
@@ -20,7 +20,7 @@ const seedData = async () => {
     // Create admin user
     const adminUser = new User({
       username: 'admin',
-      email: 'admin@kahoot.local',
+      email: 'admin@thinkaton.local',
       password: 'admin123',
       role: 'admin'
     });
@@ -250,7 +250,7 @@ const seedData = async () => {
 
     console.log('✅ Database seeding completed successfully!');
     console.log('\n📋 Sample accounts created:');
-    console.log('Admin: admin@kahoot.local / admin123');
+    console.log('Admin: admin@thinkaton.local / admin123');
     console.log('Teacher: teacher@school.edu / teacher123');
     console.log('Student 1: student1@school.edu / student123');
     console.log('Student 2: student2@school.edu / student123');

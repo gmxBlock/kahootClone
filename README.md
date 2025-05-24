@@ -1,6 +1,6 @@
-# Kahoot Clone Backend
+# Thinkaton Backend
 
-A real-time quiz application backend built with Node.js, Express, Socket.io, and MongoDB. This is a complete Kahoot-style quiz platform that supports real-time multiplayer quizzes with live leaderboards.
+A real-time quiz application backend built with Node.js, Express, Socket.io, and MongoDB. This is a complete Thinkaton-style quiz platform that supports real-time multiplayer quizzes with live leaderboards.
 
 ## 🚀 Features
 
@@ -54,7 +54,7 @@ A real-time quiz application backend built with Node.js, Express, Socket.io, and
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd kahoot-clone-backend
+   cd thinkaton-backend
    ```
 
 2. **Install dependencies**
@@ -70,7 +70,7 @@ A real-time quiz application backend built with Node.js, Express, Socket.io, and
    ```env
    NODE_ENV=development
    PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/kahoot-clone
+   MONGODB_URI=mongodb://localhost:27017/thinkaton
    JWT_SECRET=your-super-secret-jwt-key
    FRONTEND_URL=http://localhost:3001
    ```

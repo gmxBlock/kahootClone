@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 describe('Auth Routes', () => {
   beforeAll(async () => {
     // Connect to test database
-    await mongoose.connect(process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/kahoot-clone-test');
+    await mongoose.connect(process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/thinkaton-test');
   });
 
   beforeEach(async () => {
