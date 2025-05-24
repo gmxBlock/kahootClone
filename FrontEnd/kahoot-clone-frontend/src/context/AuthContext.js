@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { getUser, loginUser, registerUser, logoutUser } from '../services/auth';
+import { getUser, loginUser, registerUser, logoutUser, isAuthenticated } from '../services/auth';
 
 export const AuthContext = createContext();
 
@@ -8,38 +8,66 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const initializeAuth = async () => {
       try {
-        const currentUser = await getUser();
-        setUser(currentUser);
+        // Check if user is already authenticated
+        if (isAuthenticated()) {
+          const currentUser = await getUser();
+          setUser(currentUser);
+        }
       } catch (error) {
-        console.log('Could not fetch user, probably backend not running:', error);
+        console.log('Could not fetch user:', error);
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
+    initializeAuth();
   }, []);
 
-  const login = async (credentials) => {
-    const loggedInUser = await loginUser(credentials);
-    setUser(loggedInUser);
+  const login = async (credentials, rememberMe = false) => {
+    try {
+      const response = await loginUser(credentials, rememberMe);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const register = async (userData) => {
-    const newUser = await registerUser(userData);
-    setUser(newUser);
+    try {
+      const response = await registerUser(userData);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = async () => {
-    await logoutUser();
-    setUser(null);
+    try {
+      await logoutUser();
+      setUser(null);
+    } catch (error) {
+      // Even if logout fails, clear user state
+      setUser(null);
+      throw error;
+    }
+  };
+
+  const value = {
+    user,
+    loading,
+    login,
+    register,
+    logout,
+    isAuthenticated: () => !!user
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

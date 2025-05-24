@@ -11,35 +11,72 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-export const register = async (userData) => {
+// Store user data in localStorage
+const setUserData = (token, user) => {
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
+};
+
+// Clear user data from localStorage
+const clearUserData = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('rememberMe');
+};
+
+// Get stored user data
+const getStoredUser = () => {
+  const user = localStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
+};
+
+// Check if user chose "Remember Me"
+const shouldRememberUser = () => {
+  return localStorage.getItem('rememberMe') === 'true';
+};
+
+export const registerUser = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/register`, userData);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+    
+    if (response.data.token && response.data.user) {
+      setUserData(response.data.token, response.data.user);
+      localStorage.setItem('rememberMe', 'true'); // Auto-remember on registration
     }
+    
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: 'Registration failed' };
   }
 };
 
-export const login = async (userData) => {
+export const loginUser = async (credentials, rememberMe = false) => {
   try {
-    const response = await axios.post(`${API_URL}/login`, userData);
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+    const response = await axios.post(`${API_URL}/login`, credentials);
+    
+    if (response.data.token && response.data.user) {
+      setUserData(response.data.token, response.data.user);
+      localStorage.setItem('rememberMe', rememberMe.toString());
     }
+    
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : { message: 'Login failed' };
   }
 };
 
-export const logout = async () => {
+export const logoutUser = async () => {
   try {
-    localStorage.removeItem('token');
+    const shouldClearData = !shouldRememberUser();
+    
+    // Always clear sensitive data
+    clearUserData();
+    
+    // Optionally call logout endpoint
     await axios.post(`${API_URL}/logout`);
   } catch (error) {
+    // Even if logout request fails, clear local data
+    clearUserData();
     throw error.response ? error.response.data : { message: 'Logout failed' };
   }
 };
@@ -50,15 +87,43 @@ export const getUser = async () => {
     if (!token) {
       return null;
     }
-    const response = await axios.get(`${API_URL}/me`);
-    return response.data.user;
+
+    // First try to get from localStorage
+    const storedUser = getStoredUser();
+    if (storedUser) {
+      // Verify token is still valid by making a request
+      try {
+        const response = await axios.get(`${API_URL}/me`);
+        // Update stored user data if successful
+        setUserData(token, response.data.user);
+        return response.data.user;
+      } catch (error) {
+        // Token might be expired, clear data
+        clearUserData();
+        return null;
+      }
+    }
+
+    return null;
   } catch (error) {
-    localStorage.removeItem('token');
+    clearUserData();
     return null;
   }
 };
 
-// Export with alternative names for compatibility
-export const registerUser = register;
-export const loginUser = login;
-export const logoutUser = logout;
+// Check if user is authenticated
+export const isAuthenticated = () => {
+  const token = localStorage.getItem('token');
+  const user = getStoredUser();
+  return !!(token && user);
+};
+
+// Get stored token
+export const getToken = () => {
+  return localStorage.getItem('token');
+};
+
+// Legacy support - keeping old function names
+export const register = registerUser;
+export const login = loginUser;
+export const logout = logoutUser;

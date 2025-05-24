@@ -9,6 +9,7 @@ import GameRoom from './pages/GameRoom';
 import Profile from './pages/Profile';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import QuizList from './components/quiz/QuizList';
 import QuizCreator from './components/quiz/QuizCreator';
 import GameLobby from './components/game/GameLobby';
@@ -21,14 +22,30 @@ const App = () => {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/game-room" element={<GameRoom />} />
-          <Route path="/game/:gamePin" element={<GameRoom />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/quizzes" element={<QuizList />} />
-          <Route path="/quiz-creator" element={<QuizCreator />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/game-room" element={<GameRoom />} />
+          <Route path="/game/:gamePin" element={<GameRoom />} />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/quizzes" element={
+            <ProtectedRoute>
+              <QuizList />
+            </ProtectedRoute>
+          } />
+          <Route path="/quiz-creator" element={
+            <ProtectedRoute>
+              <QuizCreator />
+            </ProtectedRoute>
+          } />
           <Route path="/game-lobby" element={<GameLobby />} />
         </Routes>
         <Footer />
