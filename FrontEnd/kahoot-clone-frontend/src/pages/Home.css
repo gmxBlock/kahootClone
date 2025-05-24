@@ -234,8 +234,10 @@
 /* Stats Section */
 .stats-section {
   padding: 4rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.2) 0%, rgba(32, 32, 32, 0.15) 50%, rgba(64, 64, 64, 0.1) 100%);
   backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stats-container {
@@ -248,7 +250,8 @@
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 3rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #f8f9fa;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .stats-grid {
@@ -260,13 +263,17 @@
 .stat-card {
   padding: 2rem;
   border-radius: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(128, 128, 128, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
 }
 
 .stat-card:hover {
   transform: scale(1.05);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(128, 128, 128, 0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .stat-value {
@@ -274,7 +281,7 @@
   font-weight: 900;
   display: block;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  background: linear-gradient(135deg, #e9ecef 0%, #adb5bd 50%, #6c757d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -283,6 +290,7 @@
 
 .stat-label {
   font-size: 1.1rem;
+  color: #ced4da;
   opacity: 0.9;
   font-weight: 600;
   text-transform: uppercase;
@@ -335,22 +343,6 @@
   margin: 0 auto 1.5rem auto;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   position: relative;
-}
-
-.step-number::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 100%;
-  width: 100px;
-  height: 2px;
-  background: linear-gradient(90deg, #4ecdc4, transparent);
-  transform: translateY(-50%);
-  z-index: -1;
-}
-
-.step-card:last-child .step-number::after {
-  display: none;
 }
 
 .step-title {
