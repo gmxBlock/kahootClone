@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './Home.css';
@@ -8,6 +8,30 @@ const Home = () => {
   const { user } = useContext(AuthContext);
   const [gamePin, setGamePin] = useState('');
   const [showJoinModal, setShowJoinModal] = useState(false);
+  const statsRef = useRef(null);
+
+  // Cursor following shine effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (statsRef.current) {
+        const rect = statsRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Update CSS variables for cursor position
+        statsRef.current.style.setProperty('--mouse-x', `${x}px`);
+        statsRef.current.style.setProperty('--mouse-y', `${y}px`);
+      }
+    };
+
+    const statsElement = statsRef.current;
+    if (statsElement) {
+      statsElement.addEventListener('mousemove', handleMouseMove);
+      return () => {
+        statsElement.removeEventListener('mousemove', handleMouseMove);
+      };
+    }
+  }, []);
 
   const handleStartPlaying = () => {
     if (user) {
@@ -128,7 +152,7 @@ const Home = () => {
       </div>
 
       {/* Stats Section */}
-      <div className="stats-section">
+      <div className="stats-section cursor-follow-shine" ref={statsRef}>
         <div className="stats-container">
           <h2 className="stats-title">Join the Fun!</h2>
           <div className="stats-grid">
