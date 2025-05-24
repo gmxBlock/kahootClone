@@ -62,8 +62,8 @@ const Register = () => {
   return (
     <div className="register-container">
       <div className="register-card">
-        <h2>Create Account</h2>
-        <p className="register-subtitle">Join the Kahoot Clone community</p>
+        <h2>Join Us Today!</h2>
+        <p className="register-subtitle">Create your account to get started</p>
         
         {error && <div className="error-message">{error}</div>}
         
