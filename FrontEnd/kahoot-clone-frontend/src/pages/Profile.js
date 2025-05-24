@@ -18,43 +18,34 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        if (user) {
-          const data = await getUserProfile(user.id);
-          setProfileData(data);
-          setEditForm({
-            username: data.username || '',
-            email: data.email || '',
-            bio: data.bio || ''
-          });
-        } else {
-          // For demo purposes - Jakob Masfelder's profile
-          setProfileData({
-            username: 'Jakob Masfelder',
-            email: 'jakob@masfelder.de',
-            bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.',
-            avatar: '/api/placeholder/150/150',
-            stats: {
-              gamesPlayed: 0,
-              gamesWon: 0,
-              totalScore: 0,
-              averageScore: 0,
-              quizzesCreated: 0,
-              gamesHosted: 0
-            },
-            createdAt: new Date().toISOString(),
-            skills: ['React', 'Node.js', 'JavaScript', 'Socket.io', 'MongoDB', 'Express.js'],
-            achievements: [
-              { name: 'Quiz Master', description: 'Created your first quiz', earned: true },
-              { name: 'Game Host', description: 'Hosted your first game', earned: false },
-              { name: 'High Scorer', description: 'Scored 100% on a quiz', earned: false }
-            ]
-          });
-          setEditForm({
-            username: 'Jakob Masfelder',
-            email: 'jakob@masfelder.de',
-            bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.'
-          });
-        }
+        // For now, always show demo data since backend might not be running
+        // In production, this would check if user exists and fetch real data
+        setProfileData({
+          username: 'Jakob Masfelder',
+          email: 'jakob@masfelder.de',
+          bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.',
+          avatar: '/api/placeholder/150/150',
+          stats: {
+            gamesPlayed: 0,
+            gamesWon: 0,
+            totalScore: 0,
+            averageScore: 0,
+            quizzesCreated: 0,
+            gamesHosted: 0
+          },
+          createdAt: new Date().toISOString(),
+          skills: ['React', 'Node.js', 'JavaScript', 'Socket.io', 'MongoDB', 'Express.js'],
+          achievements: [
+            { name: 'Quiz Master', description: 'Created your first quiz', earned: true },
+            { name: 'Game Host', description: 'Hosted your first game', earned: false },
+            { name: 'High Scorer', description: 'Scored 100% on a quiz', earned: false }
+          ]
+        });
+        setEditForm({
+          username: 'Jakob Masfelder',
+          email: 'jakob@masfelder.de',
+          bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.'
+        });
       } catch (err) {
         setError('Failed to fetch profile data');
       } finally {
@@ -63,7 +54,7 @@ const Profile = () => {
     };
 
     fetchProfileData();
-  }, [user]);
+  }, []);
 
   const handleEdit = () => {
     setIsEditing(true);

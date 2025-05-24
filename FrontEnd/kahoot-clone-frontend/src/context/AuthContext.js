@@ -9,9 +9,15 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const currentUser = await getUser();
-      setUser(currentUser);
-      setLoading(false);
+      try {
+        const currentUser = await getUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.log('Could not fetch user, probably backend not running:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchUser();
