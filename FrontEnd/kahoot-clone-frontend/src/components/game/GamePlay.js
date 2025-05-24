@@ -3,6 +3,7 @@ import { useGame } from '../../hooks/useGame';
 import Question from './Question';
 import Leaderboard from './Leaderboard';
 import Results from './Results';
+import './GamePlay.css';
 
 const GamePlay = () => {
   const { currentQuestion, nextQuestion, gameOver, score } = useGame();

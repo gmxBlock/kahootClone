@@ -1,4 +1,5 @@
 import React from 'react';
+import './GameLobby.css';
 
 const GameLobby = () => {
   return (

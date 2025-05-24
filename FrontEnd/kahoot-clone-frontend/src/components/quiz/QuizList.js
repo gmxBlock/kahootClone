@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import QuizCard from './QuizCard';
+import './QuizList.css';
 
 const QuizList = () => {
   const [quizzes, setQuizzes] = useState([]);

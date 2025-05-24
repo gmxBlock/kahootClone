@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './QuizCreator.css';
 
 const QuizCreator = () => {
   const [quizTitle, setQuizTitle] = useState('');

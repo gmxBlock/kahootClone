@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import GameLobby from '../components/game/GameLobby';
 import GamePlay from '../components/game/GamePlay';
+import './GameRoom.css';
 
 const GameRoom = () => {
   const { gameId } = useParams();

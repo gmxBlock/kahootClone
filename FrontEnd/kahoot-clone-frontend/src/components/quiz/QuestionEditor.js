@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './QuestionEditor.css';
 
 const QuestionEditor = ({ question, onSave }) => {
   const [text, setText] = useState(question.text || '');

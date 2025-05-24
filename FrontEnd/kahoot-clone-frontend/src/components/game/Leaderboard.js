@@ -1,4 +1,5 @@
 import React from 'react';
+import './Leaderboard.css';
 
 const Leaderboard = ({ scores }) => {
   return (

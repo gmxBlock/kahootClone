@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { registerUser } from '../../services/auth';
+import './Register.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({

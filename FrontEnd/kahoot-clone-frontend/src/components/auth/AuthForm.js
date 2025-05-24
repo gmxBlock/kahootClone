@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { login, register } from '../../services/auth';
+import './AuthForm.css';
 
 const AuthForm = ({ isLogin }) => {
   const [email, setEmail] = useState('');
