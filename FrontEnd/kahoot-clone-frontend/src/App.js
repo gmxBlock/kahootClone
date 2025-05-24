@@ -7,6 +7,8 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import GameRoom from './pages/GameRoom';
 import Profile from './pages/Profile';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -47,6 +49,8 @@ const App = () => {
             </ProtectedRoute>
           } />
           <Route path="/game-lobby" element={<GameLobby />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
         </Routes>
         <Footer />
       </Router>

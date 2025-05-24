@@ -8,7 +8,8 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    agreeToTerms: false
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,11 +17,19 @@ const Register = () => {
   const { register } = useContext(AuthContext);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
   };
 
   const validateForm = () => {
+    if (!formData.agreeToTerms) {
+      setError('You must agree to the Terms of Service and Privacy Policy');
+      return false;
+    }
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
@@ -125,6 +134,22 @@ const Register = () => {
               disabled={loading}
               minLength="6"
             />
+          </div>
+          
+          <div className="form-group checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="agreeToTerms"
+                checked={formData.agreeToTerms}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              />
+              <span className="checkbox-text">
+                I agree to the <Link to="/terms-of-service" target="_blank">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
+              </span>
+            </label>
           </div>
           
           <button 
