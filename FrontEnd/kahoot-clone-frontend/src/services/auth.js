@@ -37,7 +37,12 @@ const shouldRememberUser = () => {
 
 export const registerUser = async (userData) => {
   try {
+    console.log('Making registration request to:', `${API_URL}/register`);
+    console.log('With data:', { ...userData, password: '***hidden***' });
+    
     const response = await axios.post(`${API_URL}/register`, userData);
+    
+    console.log('Registration response:', response.data);
     
     if (response.data.token && response.data.user) {
       setUserData(response.data.token, response.data.user);
@@ -46,7 +51,22 @@ export const registerUser = async (userData) => {
     
     return response.data;
   } catch (error) {
-    throw error.response ? error.response.data : { message: 'Registration failed' };
+    console.error('Registration error details:', error);
+    
+    if (error.response) {
+      // Server responded with error status
+      console.error('Error response:', error.response.data);
+      console.error('Error status:', error.response.status);
+      throw error.response.data;
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error('No response received:', error.request);
+      throw { message: 'Server is not responding. Please try again later.' };
+    } else {
+      // Something else happened
+      console.error('Request setup error:', error.message);
+      throw { message: 'Registration failed: ' + error.message };
+    }
   }
 };
 

@@ -218,25 +218,28 @@
   margin: 1.5rem 0;
 }
 
-.checkbox-label {
+.checkbox-container {
   display: flex;
   align-items: flex-start;
-  cursor: pointer;
-  color: #e0e0e0;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  gap: 0.75rem;
 }
 
-.checkbox-label input[type="checkbox"] {
-  margin-right: 0.75rem;
-  margin-top: 0.2rem;
+.checkbox-container input[type="checkbox"] {
+  margin: 0;
+  margin-top: 0.15rem;
   transform: scale(1.2);
   accent-color: #40e0d0;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .checkbox-text {
   flex: 1;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  cursor: pointer;
+  margin: 0;
 }
 
 .checkbox-text a {

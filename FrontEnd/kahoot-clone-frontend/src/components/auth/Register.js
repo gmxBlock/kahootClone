@@ -30,6 +30,21 @@ const Register = () => {
       return false;
     }
     
+    if (!formData.username || formData.username.length < 3) {
+      setError('Username must be at least 3 characters long');
+      return false;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(formData.username)) {
+      setError('Username can only contain letters and numbers');
+      return false;
+    }
+    
+    if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
@@ -54,14 +69,22 @@ const Register = () => {
     setLoading(true);
 
     try {
+      console.log('Attempting to register with data:', {
+        username: formData.username,
+        email: formData.email,
+        password: '***hidden***'
+      });
+      
       await register({
         username: formData.username,
         email: formData.email,
         password: formData.password
       });
       
+      console.log('Registration successful, navigating to dashboard');
       navigate('/dashboard'); // Redirect to dashboard after successful registration
     } catch (err) {
+      console.error('Registration error:', err);
       setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
@@ -86,9 +109,12 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               required
-              placeholder="Choose a username"
+              placeholder="Choose a username (letters and numbers only)"
               disabled={loading}
               minLength="3"
+              maxLength="30"
+              pattern="[a-zA-Z0-9]+"
+              title="Username can only contain letters and numbers"
             />
           </div>
           
@@ -137,19 +163,20 @@ const Register = () => {
           </div>
           
           <div className="form-group checkbox-group">
-            <label className="checkbox-label">
+            <div className="checkbox-container">
               <input
                 type="checkbox"
+                id="agreeToTerms"
                 name="agreeToTerms"
                 checked={formData.agreeToTerms}
                 onChange={handleChange}
                 required
                 disabled={loading}
               />
-              <span className="checkbox-text">
+              <label htmlFor="agreeToTerms" className="checkbox-text">
                 I agree to the <Link to="/terms-of-service" target="_blank">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
-              </span>
-            </label>
+              </label>
+            </div>
           </div>
           
           <button 
