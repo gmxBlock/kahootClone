@@ -68,7 +68,7 @@
   gap: 1.5rem;
 }
 
-.error-message {
+.login-container .error-message {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #fca5a5;
@@ -79,11 +79,11 @@
   margin-bottom: 1rem;
 }
 
-.form-group {
+.login-container .form-group {
   position: relative;
 }
 
-.form-group label {
+.login-container .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   color: #b0c4de;
@@ -93,7 +93,7 @@
   letter-spacing: 0.5px;
 }
 
-.form-group input {
+.login-container .form-group input {
   width: 100%;
   padding: 1rem 1.5rem;
   border: 2px solid rgba(64, 224, 208, 0.3);
@@ -105,7 +105,7 @@
   box-sizing: border-box;
 }
 
-.form-group input:focus {
+.login-container .form-group input:focus {
   outline: none;
   border-color: #40e0d0;
   background: rgba(13, 27, 42, 0.8);
@@ -114,19 +114,19 @@
   transform: translateY(-2px);
 }
 
-.form-group input::placeholder {
+.login-container .form-group input::placeholder {
   color: #6b8aa0;
   font-style: italic;
 }
 
-.form-options {
+.login-container .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 0.5rem 0;
 }
 
-.checkbox-label {
+.login-container .checkbox-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -135,14 +135,14 @@
   font-size: 0.9rem;
 }
 
-.checkbox-label input[type="checkbox"] {
+.login-container .checkbox-label input[type="checkbox"] {
   width: 18px;
   height: 18px;
   accent-color: #40e0d0;
   border-radius: 4px;
 }
 
-.forgot-link {
+.login-container .forgot-link {
   color: #40e0d0;
   text-decoration: none;
   font-size: 0.9rem;
@@ -150,7 +150,7 @@
   transition: color 0.3s ease;
 }
 
-.forgot-link:hover {
+.login-container .forgot-link:hover {
   color: #48cae4;
   text-decoration: underline;
   text-shadow: 0 0 8px rgba(64, 224, 208, 0.4);
@@ -245,19 +245,19 @@
   box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
 }
 
-.forgot-password {
+.login-container .forgot-password {
   text-align: right;
   margin-top: 0.5rem;
 }
 
-.forgot-password a {
+.login-container .forgot-password a {
   color: #b0c4de;
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s ease;
 }
 
-.forgot-password a:hover {
+.login-container .forgot-password a:hover {
   color: #40e0d0;
   text-shadow: 0 0 8px rgba(64, 224, 208, 0.4);
 }

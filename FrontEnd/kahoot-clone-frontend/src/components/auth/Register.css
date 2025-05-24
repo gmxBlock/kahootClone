@@ -68,7 +68,7 @@
   gap: 1.5rem;
 }
 
-.error-message {
+.register-container .error-message {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #fca5a5;
@@ -79,17 +79,17 @@
   margin-bottom: 1rem;
 }
 
-.form-row {
+.register-container .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.form-group {
+.register-container .form-group {
   position: relative;
 }
 
-.form-group label {
+.register-container .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   color: #b0c4de;
@@ -99,7 +99,7 @@
   letter-spacing: 0.5px;
 }
 
-.form-group input {
+.register-container .form-group input {
   width: 100%;
   padding: 1rem 1.5rem;
   border: 2px solid rgba(255, 107, 107, 0.3);
@@ -111,7 +111,7 @@
   box-sizing: border-box;
 }
 
-.form-group input:focus {
+.register-container .form-group input:focus {
   outline: none;
   border-color: #ff6b6b;
   background: rgba(13, 27, 42, 0.8);
@@ -120,7 +120,7 @@
   transform: translateY(-2px);
 }
 
-.form-group input::placeholder {
+.register-container .form-group input::placeholder {
   color: #6b8aa0;
   font-style: italic;
 }
@@ -220,15 +220,15 @@
     padding: 1rem;
   }
   
-  .register-card {
+  .register-container .register-card {
     padding: 2rem;
   }
   
-  .register-title {
+  .register-container .register-title {
     font-size: 2rem;
   }
   
-  .form-row {
+  .register-container .form-row {
     grid-template-columns: 1fr;
   }
 }
