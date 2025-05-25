@@ -24,8 +24,8 @@ const Footer = () => {
         <div className="footer-section">
           <h3>Support</h3>
           <ul>
-            <li><a href="mailto:support@thinkaton.com">Contact Support</a></li>
-            <li><a href="mailto:feedback@thinkaton.com">Send Feedback</a></li>
+            <li><a href="mailto:jakob@masfelder.de">Contact Support</a></li>
+            <li><a href="mailto:jakob@masfelder.de">Send Feedback</a></li>
             <li><Link to="/privacy-policy">Privacy Policy</Link></li>
             <li><Link to="/terms-of-service">Terms of Service</Link></li>
           </ul>
