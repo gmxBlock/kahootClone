@@ -18,44 +18,115 @@ const generateToken = (userId) => {
 // @access  Public
 router.post('/register', validate(schemas.register), async (req, res) => {
   try {
+    console.log('🔍 Registration attempt started:', {
+      username: req.body.username,
+      email: req.body.email,
+      timestamp: new Date().toISOString(),
+      ip: req.ip || req.connection.remoteAddress
+    });
+
     const { username, email, password } = req.body;
 
-    // Check if user exists
+    // Check if user exists with detailed logging
+    console.log('🔍 Checking for existing user...');
     const existingUser = await User.findOne({
       $or: [{ email }, { username }]
     });
 
     if (existingUser) {
+      const conflictType = existingUser.email === email ? 'email' : 'username';
+      console.log('⚠️  Registration blocked - user already exists:', {
+        conflictType,
+        existingEmail: existingUser.email,
+        existingUsername: existingUser.username,
+        existingId: existingUser._id
+      });
+      
       return res.status(400).json({
         message: existingUser.email === email ? 'Email already registered' : 'Username already taken'
       });
     }
 
-    // Create user
+    console.log('✅ No existing user found, creating new user...');
+
+    // Create user with logging
     const user = new User({
       username,
       email,
       password
     });
 
-    await user.save();
+    console.log('🔍 User object created, attempting to save to database...');
+    const savedUser = await user.save();
+    
+    console.log('✅ User saved successfully to database:', {
+      id: savedUser._id,
+      username: savedUser.username,
+      email: savedUser.email,
+      role: savedUser.role,
+      createdAt: savedUser.createdAt,
+      isActive: savedUser.isActive
+    });
+
+    // Verify user was actually saved by querying again
+    const verifyUser = await User.findById(savedUser._id);
+    console.log('✅ Database verification check:', {
+      found: !!verifyUser,
+      id: verifyUser?._id,
+      username: verifyUser?.username
+    });
 
     // Generate token
-    const token = generateToken(user._id);
+    console.log('🔑 Generating JWT token...');
+    const token = generateToken(savedUser._id);
+    console.log('✅ JWT token generated successfully');
 
-    res.status(201).json({
+    const responseData = {
       message: 'User registered successfully',
       token,
       user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        stats: user.stats
+        id: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email,
+        role: savedUser.role,
+        stats: savedUser.stats
       }
+    };
+
+    console.log('✅ Registration completed successfully:', {
+      userId: savedUser._id,
+      username: savedUser.username,
+      tokenLength: token.length
     });
-  } catch (error) {
-    console.error('Registration error:', error);
+
+    res.status(201).json(responseData);  } catch (error) {
+    console.error('❌ Registration error occurred:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
+
+    // Handle specific MongoDB errors
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      console.error('❌ Duplicate key error:', { field, keyPattern: error.keyPattern });
+      
+      return res.status(400).json({ 
+        message: `User with this ${field} already exists` 
+      });
+    }
+
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      console.error('❌ Validation error:', error.errors);
+      return res.status(400).json({ 
+        message: 'Validation error',
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+
+    console.error('❌ Unexpected registration error');
     res.status(500).json({ message: 'Server error during registration' });
   }
 });

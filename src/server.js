@@ -17,6 +17,7 @@ const quizRoutes = require('./routes/quiz');
 const gameRoutes = require('./routes/game');
 const userRoutes = require('./routes/user');
 const legalRoutes = require('./routes/legal');
+const debugRoutes = require('./routes/debug');
 
 const app = express();
 const server = http.createServer(app);
@@ -69,6 +70,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/legal', legalRoutes);
+app.use('/api/debug', debugRoutes);
 
 // Socket.io handler
 socketHandler(io);

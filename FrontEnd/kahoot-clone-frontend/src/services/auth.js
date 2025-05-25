@@ -37,34 +37,71 @@ const shouldRememberUser = () => {
 
 export const registerUser = async (userData) => {
   try {
-    console.log('Making registration request to:', `${API_URL}/register`);
-    console.log('With data:', { ...userData, password: '***hidden***' });
+    console.log('🚀 Starting registration request...');
+    console.log('🔍 API URL:', `${API_URL}/register`);
+    console.log('📋 Request data:', { 
+      username: userData.username, 
+      email: userData.email, 
+      password: '***hidden***',
+      passwordLength: userData.password?.length 
+    });
     
+    const startTime = Date.now();
     const response = await axios.post(`${API_URL}/register`, userData);
+    const endTime = Date.now();
     
-    console.log('Registration response:', response.data);
+    console.log('📡 Registration response received:', {
+      status: response.status,
+      statusText: response.statusText,
+      responseTime: `${endTime - startTime}ms`,
+      headers: response.headers
+    });
+    
+    console.log('📊 Response data:', {
+      message: response.data.message,
+      hasToken: !!response.data.token,
+      tokenLength: response.data.token?.length,
+      user: response.data.user
+    });
     
     if (response.data.token && response.data.user) {
+      console.log('💾 Storing user data in localStorage...');
       setUserData(response.data.token, response.data.user);
       localStorage.setItem('rememberMe', 'true'); // Auto-remember on registration
+      console.log('✅ User data stored successfully');
     }
-    
+    console.log('✅ Registration completed successfully!');
     return response.data;
   } catch (error) {
-    console.error('Registration error details:', error);
+    console.error('❌ Registration error occurred:', {
+      errorType: error.constructor.name,
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
     
     if (error.response) {
       // Server responded with error status
-      console.error('Error response:', error.response.data);
-      console.error('Error status:', error.response.status);
+      console.error('📡 Server error response:', {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers
+      });
       throw error.response.data;
     } else if (error.request) {
       // Request was made but no response received
-      console.error('No response received:', error.request);
-      throw { message: 'Server is not responding. Please try again later.' };
+      console.error('🚫 Network error - no response received:', {
+        request: error.request,
+        config: error.config
+      });
+      throw { message: 'Server is not responding. Please check your connection and try again.' };
     } else {
       // Something else happened
-      console.error('Request setup error:', error.message);
+      console.error('⚠️  Request setup error:', {
+        message: error.message,
+        stack: error.stack
+      });
       throw { message: 'Registration failed: ' + error.message };
     }
   }

@@ -33,10 +33,6 @@ const Footer = () => {
       </div>
       
       <div className="footer-bottom">
-        <div className="footer-links">
-          <Link to="/privacy-policy">Privacy Policy</Link>
-          <Link to="/terms-of-service">Terms of Service</Link>
-        </div>
         <p>&copy; {new Date().getFullYear()} Jakob Masfelder. All rights reserved.</p>
       </div>
     </footer>
