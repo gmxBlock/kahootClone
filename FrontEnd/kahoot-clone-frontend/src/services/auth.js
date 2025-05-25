@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
-const API_URL = `${API_BASE_URL}/auth`;
+// Use relative URLs since we have setupProxy.js configured
+const API_URL = '/api/auth';
 
 // Set up axios interceptor to include auth token
 axios.interceptors.request.use((config) => {

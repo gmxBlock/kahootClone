@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+// Use relative URLs since we have setupProxy.js configured
+const API_URL = '/api';
 
 export const fetchQuizzes = async () => {
   const response = await axios.get(`${API_URL}/quiz`);

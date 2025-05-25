@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 
-const socket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3000', {
+// Use relative path since we have setupProxy.js configured for socket.io
+const socket = io('/', {
   transports: ['websocket'],
   autoConnect: false,
 });
