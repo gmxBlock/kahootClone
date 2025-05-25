@@ -23,8 +23,7 @@ module.exports = {
     restart_delay: 5000,
     watch: false,
     ignore_watch: ['node_modules', 'logs'],
-    node_args: '--max-old-space-size=1024'
-  }, {
+    node_args: '--max-old-space-size=1024'  }, {
     name: 'kahoot-clone-frontend',
     script: 'npm',
     args: 'start',
@@ -33,7 +32,10 @@ module.exports = {
     exec_mode: 'fork',    env: {
       NODE_ENV: 'development',
       PORT: 3001,
-      BROWSER: 'none'
+      BROWSER: 'none',
+      CI: 'true',
+      GENERATE_SOURCEMAP: 'false',
+      SKIP_PREFLIGHT_CHECK: 'true'
     },
     env_production: {
       NODE_ENV: 'production',
