@@ -30,24 +30,21 @@ module.exports = {
     args: 'start',
     cwd: './FrontEnd/kahoot-clone-frontend',
     instances: 1,
-    exec_mode: 'fork',
-    env: {
+    exec_mode: 'fork',    env: {
       NODE_ENV: 'development',
       PORT: 3001,
-      BROWSER: 'none',
-      CI: 'true'
+      BROWSER: 'none'
     },
     env_production: {
       NODE_ENV: 'production',
       PORT: 3001,
-      BROWSER: 'none',
-      CI: 'true'
+      BROWSER: 'none'
     },
     log_file: './logs/frontend-combined.log',
     out_file: './logs/frontend-out.log',
-    error_file: './logs/frontend-error.log',
-    log_date_format: 'YYYY-MM-DD HH:mm Z',
-    merge_logs: true,    max_restarts: 10,
+    error_file: './logs/frontend-error.log',    log_date_format: 'YYYY-MM-DD HH:mm Z',
+    merge_logs: true,
+    max_restarts: 10,
     min_uptime: '10s',
     max_memory_restart: '512M',
     restart_delay: 5000,
