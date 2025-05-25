@@ -35,6 +35,8 @@ const shouldRememberUser = () => {
   return localStorage.getItem('rememberMe') === 'true';
 };
 
+console.log('API_URL being used:', process.env.REACT_APP_API_URL || 'http://localhost:3000/api');
+
 export const registerUser = async (userData) => {
   try {
     console.log('🚀 Starting registration request...');
