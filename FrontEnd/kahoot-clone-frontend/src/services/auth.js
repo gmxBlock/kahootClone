@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api/auth';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_URL = `${API_BASE_URL}/auth`;
 
 // Set up axios interceptor to include auth token
 axios.interceptors.request.use((config) => {
@@ -35,7 +36,7 @@ const shouldRememberUser = () => {
   return localStorage.getItem('rememberMe') === 'true';
 };
 
-console.log('API_URL being used:', process.env.REACT_APP_API_URL || 'http://localhost:3000/api');
+console.log('API_URL being used:', API_URL);
 
 export const registerUser = async (userData) => {
   try {
