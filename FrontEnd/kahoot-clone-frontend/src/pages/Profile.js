@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { getUserProfile } from '../services/api';
+import { getUserProfile, updateUserProfile, getUserStats } from '../services/api';
 import './Profile.css';
 
 const Profile = () => {
@@ -12,41 +12,76 @@ const Profile = () => {
   const [editForm, setEditForm] = useState({
     username: '',
     email: '',
-    bio: ''
+    bio: '',
+    skills: []
   });
+  const [skillInput, setSkillInput] = useState('');
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // For now, always show demo data since backend might not be running
-        // In production, this would check if user exists and fetch real data
-        setProfileData({
-          username: 'Jakob Masfelder',
-          email: 'jakob@masfelder.de',
-          bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.',
-          avatar: 'https://via.placeholder.com/150/667eea/ffffff?text=JM',
-          stats: {
-            gamesPlayed: 0,
-            gamesWon: 0,
-            totalScore: 0,
-            averageScore: 0,
-            quizzesCreated: 0,
-            gamesHosted: 0
-          },
-          createdAt: new Date().toISOString(),
-          skills: ['React', 'Node.js', 'JavaScript', 'Socket.io', 'MongoDB', 'Express.js'],
-          achievements: [
-            { name: 'Quiz Master', description: 'Created your first quiz', earned: true },
-            { name: 'Game Host', description: 'Hosted your first game', earned: false },
-            { name: 'High Scorer', description: 'Scored 100% on a quiz', earned: false }
-          ]
-        });
-        setEditForm({
-          username: 'Jakob Masfelder',
-          email: 'jakob@masfelder.de',
-          bio: 'Full-stack developer passionate about creating interactive web applications. Specializing in React, Node.js, and real-time applications.'
-        });
+        if (!user || !localStorage.getItem('token')) {
+          // Show demo data if not authenticated
+          setProfileData({
+            username: 'Demo User',
+            email: 'demo@example.com',
+            bio: 'This is a demo profile. Please log in to see your real profile.',
+            avatar: 'https://via.placeholder.com/150/667eea/ffffff?text=DU',
+            stats: {
+              gamesPlayed: 0,
+              gamesWon: 0,
+              totalScore: 0,
+              averageScore: 0,
+              quizzesCreated: 0,
+              gamesHosted: 0
+            },
+            skills: ['React', 'JavaScript', 'Node.js'],
+            achievements: [
+              { name: 'Welcome!', description: 'Joined Thinkaton', earned: true },
+              { name: 'Quiz Master', description: 'Create your first quiz', earned: false },
+              { name: 'Game Host', description: 'Host your first game', earned: false }
+            ],
+            createdAt: new Date().toISOString()
+          });
+          setEditForm({
+            username: 'Demo User',
+            email: 'demo@example.com',
+            bio: 'This is a demo profile. Please log in to see your real profile.',
+            skills: ['React', 'JavaScript', 'Node.js']
+          });
+        } else {
+          // Fetch real profile data
+          const [profileResponse, statsResponse] = await Promise.all([
+            getUserProfile(),
+            getUserStats()
+          ]);
+
+          const profile = profileResponse.profile;
+          const stats = statsResponse.stats;
+
+          const combinedProfile = {
+            ...profile,
+            stats,
+            skills: profile.skills || [],
+            achievements: profile.achievements || [
+              { name: 'Welcome!', description: 'Joined Thinkaton', earned: true },
+              { name: 'Quiz Master', description: 'Create your first quiz', earned: stats.quizzesCreated > 0 },
+              { name: 'Game Host', description: 'Host your first game', earned: stats.gamesHosted > 0 },
+              { name: 'Winner', description: 'Win your first game', earned: stats.gamesWon > 0 },
+              { name: 'High Scorer', description: 'Score 90% or higher', earned: stats.averageScore >= 90 }
+            ]
+          };
+
+          setProfileData(combinedProfile);
+          setEditForm({
+            username: profile.username || '',
+            email: profile.email || '',
+            bio: profile.bio || '',
+            skills: profile.skills || []
+          });
+        }
       } catch (err) {
+        console.error('Failed to fetch profile data:', err);
         setError('Failed to fetch profile data');
       } finally {
         setLoading(false);
@@ -62,14 +97,31 @@ const Profile = () => {
 
   const handleSave = async () => {
     try {
-      // In a real app, this would make an API call to update the profile
+      if (!user || !localStorage.getItem('token')) {
+        setError('Please log in to update your profile');
+        return;
+      }
+
+      const updateData = {
+        username: editForm.username,
+        email: editForm.email,
+        bio: editForm.bio,
+        skills: editForm.skills
+      };
+
+      const response = await updateUserProfile(updateData);
+      
       setProfileData(prev => ({
         ...prev,
-        ...editForm
+        ...response.profile,
+        skills: response.profile.skills || editForm.skills
       }));
+      
       setIsEditing(false);
+      setError(null);
     } catch (err) {
-      setError('Failed to update profile');
+      console.error('Failed to update profile:', err);
+      setError(err.response?.data?.message || 'Failed to update profile');
     }
   };
 
@@ -77,9 +129,35 @@ const Profile = () => {
     setEditForm({
       username: profileData?.username || '',
       email: profileData?.email || '',
-      bio: profileData?.bio || ''
+      bio: profileData?.bio || '',
+      skills: profileData?.skills || []
     });
     setIsEditing(false);
+    setError(null);
+  };
+
+  const addSkill = () => {
+    if (skillInput.trim() && !editForm.skills.includes(skillInput.trim())) {
+      setEditForm(prev => ({
+        ...prev,
+        skills: [...prev.skills, skillInput.trim()]
+      }));
+      setSkillInput('');
+    }
+  };
+
+  const removeSkill = (skillToRemove) => {
+    setEditForm(prev => ({
+      ...prev,
+      skills: prev.skills.filter(skill => skill !== skillToRemove)
+    }));
+  };
+
+  const handleSkillKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSkill();
+    }
   };
 
   if (loading) {
@@ -137,6 +215,35 @@ const Profile = () => {
                 className="edit-textarea"
                 rows="3"
               />
+              <div className="skills-editor">
+                <label>Skills:</label>
+                <div className="skills-input-container">
+                  <input
+                    type="text"
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyPress={handleSkillKeyPress}
+                    placeholder="Add a skill and press Enter"
+                    className="skill-input"
+                  />
+                  <button type="button" onClick={addSkill} className="add-skill-btn">Add</button>
+                </div>
+                <div className="skills-list-edit">
+                  {editForm.skills.map((skill, index) => (
+                    <span key={index} className="skill-tag-edit">
+                      {skill}
+                      <button 
+                        type="button" 
+                        onClick={() => removeSkill(skill)}
+                        className="remove-skill-btn"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {error && <div className="error-message">{error}</div>}
               <div className="edit-buttons">
                 <button onClick={handleSave} className="btn-save">Save</button>
                 <button onClick={handleCancel} className="btn-cancel">Cancel</button>

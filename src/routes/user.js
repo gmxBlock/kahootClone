@@ -34,6 +34,135 @@ router.get('/profile', auth, async (req, res) => {
   }
 });
 
+// @route   PUT /api/user/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', auth, async (req, res) => {
+  try {
+    const { username, email, bio, avatar, skills } = req.body;
+    
+    // Check if username is already taken by another user
+    if (username && username !== req.user.username) {
+      const existingUser = await User.findOne({ 
+        username, 
+        _id: { $ne: req.user._id } 
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Username is already taken' });
+      }
+    }
+
+    // Check if email is already taken by another user
+    if (email && email !== req.user.email) {
+      const existingUser = await User.findOne({ 
+        email, 
+        _id: { $ne: req.user._id } 
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email is already taken' });
+      }
+    }
+
+    const updateData = {};
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (bio !== undefined) updateData.bio = bio;
+    if (avatar) updateData.avatar = avatar;
+    if (skills) updateData.skills = skills;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-password').lean();
+
+    res.json({ 
+      message: 'Profile updated successfully',
+      profile: updatedUser 
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
+    }
+    res.status(500).json({ message: 'Server error while updating profile' });
+  }
+});
+
+// @route   GET /api/user/stats
+// @desc    Get detailed user statistics
+// @access  Private
+router.get('/stats', auth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Get comprehensive stats
+    const [
+      user,
+      gamesHosted,
+      gamesPlayed,
+      quizzesCreated,
+      totalGames,
+      wonGames
+    ] = await Promise.all([
+      User.findById(userId).select('-password').lean(),
+      Game.countDocuments({ host: userId }),
+      Game.countDocuments({ 'players.userId': userId }),
+      Quiz.countDocuments({ creator: userId }),
+      Game.find({
+        $or: [
+          { host: userId },
+          { 'players.userId': userId }
+        ],
+        status: 'completed'
+      }).lean(),
+      Game.find({
+        'players.userId': userId,
+        status: 'completed'
+      }).lean()
+    ]);
+
+    // Calculate detailed statistics
+    let totalScore = 0;
+    let totalCorrectAnswers = 0;
+    let totalAnswers = 0;
+    let gamesWon = 0;
+
+    wonGames.forEach(game => {
+      const player = game.players.find(p => p.userId?.toString() === userId.toString());
+      if (player) {
+        totalScore += player.score || 0;
+        totalCorrectAnswers += player.answers.filter(a => a.isCorrect).length;
+        totalAnswers += player.answers.length;
+        if (player.position === 1) {
+          gamesWon++;
+        }
+      }
+    });
+
+    const averageScore = totalAnswers > 0 ? Math.round((totalCorrectAnswers / totalAnswers) * 100) : 0;
+    const winRate = gamesPlayed > 0 ? Math.round((gamesWon / gamesPlayed) * 100) : 0;
+
+    const stats = {
+      ...user.stats,
+      gamesPlayed,
+      gamesWon,
+      gamesHosted,
+      quizzesCreated,
+      totalScore,
+      averageScore,
+      winRate,
+      totalCorrectAnswers,
+      totalAnswers
+    };
+
+    res.json({ stats });
+  } catch (error) {
+    console.error('Get stats error:', error);
+    res.status(500).json({ message: 'Server error while fetching stats' });
+  }
+});
+
 // @route   GET /api/user/dashboard
 // @desc    Get user dashboard data
 // @access  Private

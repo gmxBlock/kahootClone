@@ -26,16 +26,41 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
-  },
-  avatar: {
+  },  avatar: {
     type: String,
     default: null
   },
+  bio: {
+    type: String,
+    maxlength: [500, 'Bio cannot exceed 500 characters'],
+    default: ''
+  },
+  skills: [{
+    type: String,
+    trim: true
+  }],
+  achievements: [{
+    name: String,
+    description: String,
+    earned: { type: Boolean, default: false },
+    earnedAt: Date
+  }],
   stats: {
     gamesPlayed: { type: Number, default: 0 },
     gamesWon: { type: Number, default: 0 },
     totalScore: { type: Number, default: 0 },
-    averageScore: { type: Number, default: 0 }
+    averageScore: { type: Number, default: 0 },
+    quizzesCreated: { type: Number, default: 0 },
+    gamesHosted: { type: Number, default: 0 }
+  },
+  preferences: {
+    theme: { type: String, enum: ['light', 'dark'], default: 'light' },
+    notifications: { type: Boolean, default: true },
+    publicProfile: { type: Boolean, default: true }
+  },
+  lastActive: {
+    type: Date,
+    default: Date.now
   },
   isActive: {
     type: Boolean,
