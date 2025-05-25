@@ -85,32 +85,34 @@ const Dashboard = () => {
       </div>
 
       {/* Enhanced Quick Stats */}
-      <div className="dashboard-stats">
-        <h2>Your Statistics</h2>
-        <div className="stats-grid">
-          <div className="stat-item">
-            <span className="stat-number">{userStats?.quizzesCreated || 0}</span>
-            <span className="stat-label">Quizzes Created</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{userStats?.gamesPlayed || 0}</span>
-            <span className="stat-label">Games Played</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{userStats?.gamesWon || 0}</span>
-            <span className="stat-label">Games Won</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{userStats?.averageScore || 0}%</span>
-            <span className="stat-label">Average Score</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{userStats?.gamesHosted || 0}</span>
-            <span className="stat-label">Games Hosted</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{userStats?.totalScore || 0}</span>
-            <span className="stat-label">Total Score</span>
+      <div className="dashboard-content">
+        <div className="dashboard-stats">
+          <h2>Your Statistics</h2>
+          <div className="stats-grid">
+            <div className="stat-item">
+              <span className="stat-number">{userStats?.quizzesCreated || 0}</span>
+              <span className="stat-label">Quizzes Created</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{userStats?.gamesPlayed || 0}</span>
+              <span className="stat-label">Games Played</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{userStats?.gamesWon || 0}</span>
+              <span className="stat-label">Games Won</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{userStats?.averageScore || 0}%</span>
+              <span className="stat-label">Average Score</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{userStats?.gamesHosted || 0}</span>
+              <span className="stat-label">Games Hosted</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">{userStats?.totalScore || 0}</span>
+              <span className="stat-label">Total Score<br/></span>
+            </div>
           </div>
         </div>
       </div>
@@ -138,7 +140,7 @@ const Dashboard = () => {
           <div className="dashboard-card">
             <div className="card-icon">📚</div>
             <h3>My Quizzes</h3>
-            <p>View and manage all your created quizzes</p>
+            <p>View and manage all your created quizzes<br /></p>
             <Link to="/quizzes" className="card-button">
               View Quizzes
             </Link>

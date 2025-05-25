@@ -33,7 +33,7 @@
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   margin-bottom: 3rem;
 }
@@ -97,7 +97,7 @@
   background: white;
   border-radius: 15px;
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem auto;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
