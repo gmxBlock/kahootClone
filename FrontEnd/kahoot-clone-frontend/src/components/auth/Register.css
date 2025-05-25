@@ -222,6 +222,13 @@
   position: relative;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+.checkbox-container::after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 .checkbox-container input[type="checkbox"] {
