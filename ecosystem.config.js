@@ -38,7 +38,8 @@ module.exports = {
       SKIP_PREFLIGHT_CHECK: 'true',
       DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
       WDS_SOCKET_HOST: 'localhost',
-      WDS_SOCKET_PORT: 3001
+      WDS_SOCKET_PORT: 3001,
+      HOST: '0.0.0.0'
     },
     env_production: {
       NODE_ENV: 'production',
