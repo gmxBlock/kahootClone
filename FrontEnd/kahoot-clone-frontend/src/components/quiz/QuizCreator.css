@@ -2115,9 +2115,7 @@ input:checked + .toggle-switch:hover {
 
 .tag:hover {
   transform: translate3d(0, -3px, 0) scale(1.05);
-  box-shadow: 
-    0 8px 25px rgba(78, 205, 196, 0.4),
-    0 0 15px rgba(68, 160, 141, 0.3);
+  box-shadow: 0 12px 25px #667eea, 0 0 15px #764ba2;
   /* Smooth text rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
