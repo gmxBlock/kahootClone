@@ -413,7 +413,7 @@ const QuizCreator = () => {
                       className="action-button delete-button"
                       title="Delete Question"
                     >
-                      🗑️
+                      🗑️ Delete
                     </button>
                   )}
                 </div>
