@@ -601,22 +601,6 @@ input:checked + .toggle-switch:hover {
   box-sizing: border-box;
 }
 
-.correct-slider::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-}
-
 /* Checked state */
 .correct-toggle input:checked + .correct-slider {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -1302,7 +1286,7 @@ input:checked + .toggle-switch:hover {
   font-size: 1.1rem;
   flex-shrink: 0;
   transition: all 0.3s ease;
-  position: relative;
+  position: initial;
 }
 
 .answer-color::before {
@@ -1364,6 +1348,7 @@ input:checked + .toggle-switch:hover {
   align-items: center;
   gap: 1rem;
   flex-shrink: 0;
+  min-width: 2rem;
 }
 
 .correct-toggle {
@@ -1809,6 +1794,7 @@ input:checked + .toggle-switch:hover {
   min-height: 48px;
   background: rgba(255, 255, 255, 0.02);
   position: relative;
+  cursor: pointer;
 }
 
 .points-display::before {
