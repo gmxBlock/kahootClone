@@ -599,6 +599,7 @@ input:checked + .toggle-switch:hover {
     inset 0 2px 4px rgba(0, 0, 0, 0.3),
     0 2px 6px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+  display: block;
 }
 
 /* Checked state */
