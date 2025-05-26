@@ -41,9 +41,21 @@ const QuizCreator = () => {
 
   // Auto-resize hooks for textareas
   const descriptionResize = useAutoResize(quizData.description, 3, 8);
-  const questionTextResizes = questions.map((question) => 
-    useAutoResize(question.question, 3, 10)
-  );
+  
+  // Create auto-resize hooks for each question (up to reasonable limit)
+  const questionResizes = [
+    useAutoResize(questions[0]?.question || '', 3, 8),
+    useAutoResize(questions[1]?.question || '', 3, 8),
+    useAutoResize(questions[2]?.question || '', 3, 8),
+    useAutoResize(questions[3]?.question || '', 3, 8),
+    useAutoResize(questions[4]?.question || '', 3, 8),
+    useAutoResize(questions[5]?.question || '', 3, 8),
+    useAutoResize(questions[6]?.question || '', 3, 8),
+    useAutoResize(questions[7]?.question || '', 3, 8),
+    useAutoResize(questions[8]?.question || '', 3, 8),
+    useAutoResize(questions[9]?.question || '', 3, 8)
+  ];
+
   const handleQuizDataChange = (field, value) => {
     setQuizData(prev => ({ ...prev, [field]: value }));
   };
@@ -393,7 +405,7 @@ const QuizCreator = () => {
                 <div className="question-text-group">
                   <label className="form-label">Question Text *</label>
                   <textarea
-                    ref={questionTextResizes[questionIndex]?.textareaRef}
+                    ref={questionResizes[questionIndex]?.textareaRef}
                     value={question.question}
                     onChange={(e) => handleQuestionChange(questionIndex, 'question', e.target.value)}
                     placeholder="Enter your question here..."
