@@ -19,6 +19,7 @@
 .header-title {
   text-decoration: none;
   color: white;
+  margin: 0 2rem;
 }
 
 .header-title h1 {

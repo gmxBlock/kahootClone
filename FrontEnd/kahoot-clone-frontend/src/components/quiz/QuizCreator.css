@@ -245,11 +245,17 @@ body, html {
     rgba(255, 255, 255, 0.08) 50%,
     rgba(0, 0, 0, 0.15) 100%
   );
-  transform: translateY(-3px) rotateX(2deg);
+  transform: translate3d(0, -3px, 0) rotateX(2deg);
   box-shadow: 
     0 8px 25px rgba(102, 126, 234, 0.15),
     0 4px 15px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .form-input:hover::before, 
@@ -276,9 +282,14 @@ body, html {
     0 0 0 4px rgba(102, 126, 234, 0.2),
     0 12px 35px rgba(102, 126, 234, 0.25),
     0 6px 20px rgba(0, 0, 0, 0.4),
-    inset 0 2px 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-4px) rotateX(3deg);
+    inset 0 2px 0 rgba(255, 255, 255, 0.2);  transform: translate3d(0, -4px, 0) rotateX(3deg);
   animation: input-focus-glow 2s ease-in-out infinite;
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* Revolutionary input focus glow animation */
@@ -374,7 +385,8 @@ body, html {
 }
 
 .add-tag-btn:hover {
-  transform: translateY(-3px) scale(1.02);
+  transform: scale(1.05);
+  transform-origin: bottom;
   box-shadow: 
     0 12px 35px rgba(102, 126, 234, 0.4),
     0 0 20px rgba(102, 126, 234, 0.2);
@@ -419,8 +431,9 @@ body, html {
 }
 
 .tag:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+  transform: scale(1.05);
+  transform-origin: bottom;
+  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
 }
 
 .remove-tag-btn {
@@ -643,9 +656,15 @@ input:checked + .toggle-switch .toggle-slider::after {
 
 /* Revolutionary Hover Effects */
 .toggle-switch:hover {
-  transform: scale(1.08) translateY(-2px);
+  transform: scale(1.08) translate3d(0, -2px, 0);
   border-color: rgba(255, 255, 255, 0.3);
   transition: all 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .toggle-switch:hover .toggle-slider {
@@ -666,7 +685,13 @@ input:checked + .toggle-switch:hover {
     0 16px 40px rgba(102, 126, 234, 0.8),
     0 0 0 6px rgba(102, 126, 234, 0.3),
     0 0 30px rgba(102, 126, 234, 0.5);
-  transform: scale(1.08) translateY(-2px);
+  transform: scale(1.08) translate3d(0, -2px, 0);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 input:checked + .toggle-switch:hover .toggle-slider {
@@ -675,8 +700,14 @@ input:checked + .toggle-switch:hover .toggle-slider {
 
 /* Revolutionary Active State */
 .toggle-switch:active {
-  transform: scale(1.02) translateY(1px);
+  transform: scale(1.02) translate3d(0, 1px, 0);
   transition: all 0.2s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .toggle-switch:active .toggle-slider {
@@ -823,9 +854,15 @@ input:checked + .toggle-switch:active .toggle-slider {
 
 /* Revolutionary Hover Effects */
 .correct-toggle:hover .correct-slider {
-  transform: scale(1.08) translateY(-2px);
+  transform: scale(1.08) translate3d(0, -2px, 0);
   border-color: rgba(255, 255, 255, 0.25);
   transition: all 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .correct-toggle:hover .correct-slider::after {
@@ -846,7 +883,13 @@ input:checked + .toggle-switch:active .toggle-slider {
     0 15px 35px rgba(16, 185, 129, 0.8),
     0 0 0 6px rgba(16, 185, 129, 0.3),
     0 0 30px rgba(16, 185, 129, 0.6);
-  transform: scale(1.08) translateY(-2px);
+  transform: scale(1.08) translate3d(0, -2px, 0);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .correct-toggle input:checked:hover + .correct-slider::after {
@@ -855,8 +898,14 @@ input:checked + .toggle-switch:active .toggle-slider {
 
 /* Revolutionary Active State */
 .correct-toggle:active .correct-slider {
-  transform: scale(1.02) translateY(1px);
+  transform: scale(1.02) translate3d(0, 1px, 0);
   transition: all 0.2s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .correct-toggle:active .correct-slider::after {
@@ -938,7 +987,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .add-question-button:hover {
-  transform: translateY(-4px) scale(1.05) rotateX(5deg);
+  transform: translate3d(0, -4px, 0) scale(1.05) rotateX(5deg);
   box-shadow: 
     0 20px 50px rgba(240, 147, 251, 0.6),
     0 10px 25px rgba(245, 87, 108, 0.4),
@@ -947,6 +996,10 @@ input:checked + .toggle-switch:active .toggle-slider {
   background: linear-gradient(145deg, #e67fe0 0%, #e94d5a 50%, #d81b60 100%);
   border-color: rgba(255, 255, 255, 0.2);
   transition: all 0.5s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .add-question-button:hover::after {
@@ -955,8 +1008,11 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .add-question-button:active {
-  transform: translateY(-1px) scale(1.02);
+  transform: translate3d(0, -1px, 0) scale(1.02);
   transition: all 0.2s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Maintain text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .add-question-button span {
@@ -1059,7 +1115,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .question-tab:hover {
-  transform: translateY(-4px) rotateX(8deg) scale(1.05);
+  transform: translate3d(0, -4px, 0) rotateX(8deg) scale(1.05);
   box-shadow: 
     0 12px 35px rgba(102, 126, 234, 0.2),
     0 6px 20px rgba(0, 0, 0, 0.4),
@@ -1071,11 +1127,18 @@ input:checked + .toggle-switch:active .toggle-slider {
     rgba(118, 75, 162, 0.1) 50%,
     rgba(0, 0, 0, 0.15) 100%
   );
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .question-tab:active {
-  transform: translateY(-2px) rotateX(3deg) scale(1.02);
+  transform: translate3d(0, -2px, 0) rotateX(3deg) scale(1.02);
   transition: all 0.15s ease-out;
+  /* Maintain text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Revolutionary active state with 3D effect */
@@ -1087,13 +1150,17 @@ input:checked + .toggle-switch:active .toggle-slider {
   );
   color: white;
   border-color: #667eea;
-  transform: translateY(-3px) rotateX(5deg);
+  transform: translate3d(0, -3px, 0) rotateX(5deg);
   box-shadow: 
     0 15px 40px rgba(102, 126, 234, 0.5),
     0 8px 25px rgba(118, 75, 162, 0.4),
     inset 0 2px 0 rgba(255, 255, 255, 0.3),
     inset 0 -2px 0 rgba(0, 0, 0, 0.2);
   animation: tab-active-pulse 3s ease-in-out infinite;
+  /* Ensure crisp text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .question-tab.active::before {
@@ -1120,7 +1187,7 @@ input:checked + .toggle-switch:active .toggle-slider {
       0 20px 50px rgba(102, 126, 234, 0.7),
       0 12px 35px rgba(118, 75, 162, 0.6),
       inset 0 2px 0 rgba(255, 255, 255, 0.4);
-    transform: translateY(-4px) rotateX(6deg);
+    transform: translate3d(0, -4px, 0) rotateX(6deg);
   }
 }
 
@@ -1226,7 +1293,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .delete-button:hover {
-  transform: translateY(-4px) scale(1.08) rotateX(5deg);
+  transform: translate3d(0, -4px, 0) scale(1.08) rotateX(5deg);
   box-shadow: 
     0 20px 50px rgba(255, 107, 107, 0.7),
     0 10px 25px rgba(238, 90, 82, 0.5),
@@ -1235,11 +1302,21 @@ input:checked + .toggle-switch:active .toggle-slider {
   background: linear-gradient(145deg, #ff5555 0%, #d84545 50%, #b91c1c 100%);
   border-color: rgba(255, 255, 255, 0.2);
   transition: all 0.5s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .delete-button:active {
-  transform: translateY(-1px) scale(1.02);
+  transform: translate3d(0, -1px, 0) scale(1.02);
   transition: all 0.2s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* Question Form */
@@ -1270,7 +1347,13 @@ input:checked + .toggle-switch:active .toggle-slider {
 .question-text-input:hover {
   border-color: rgba(102, 126, 234, 0.3);
   background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
+  transform: translate3d(0, -1px, 0) scale(1.02);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .question-text-input:focus {
@@ -1374,7 +1457,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .add-answer-button:hover {
-  transform: translateY(-3px) scale(1.05) rotateX(3deg);
+  transform: translate3d(0, -3px, 0) scale(1.05) rotateX(3deg);
   box-shadow: 
     0 15px 40px rgba(78, 205, 196, 0.6),
     0 8px 20px rgba(68, 160, 141, 0.4),
@@ -1383,6 +1466,12 @@ input:checked + .toggle-switch:active .toggle-slider {
   background: linear-gradient(145deg, #3cbcb4 0%, #359268 50%, #1f5f5f 100%);
   border-color: rgba(255, 255, 255, 0.2);
   transition: all 0.5s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .add-answer-button:hover::after {
@@ -1391,8 +1480,14 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .add-answer-button:active {
-  transform: translateY(-1px) scale(1.02);
+  transform: translate3d(0, -1px, 0) scale(1.02);
   transition: all 0.2s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* Answer Items */
@@ -1417,7 +1512,13 @@ input:checked + .toggle-switch:active .toggle-slider {
 
 .answer-item:hover {
   background: rgba(255, 255, 255, 0.05);
-  transform: translateY(-1px);
+  transform: translate3d(0, -1px, 0);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .answer-item.correct {
@@ -1507,7 +1608,13 @@ input:checked + .toggle-switch:active .toggle-slider {
 .answer-input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-1px);
+  transform: translate3d(0, -1px, 0);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .answer-input::placeholder {
@@ -1702,7 +1809,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .save-draft-button:hover {
-  transform: translateY(-3px) scale(1.02) rotateX(3deg);
+  transform: translate3d(0, -3px, 0) scale(1.02) rotateX(3deg);
   background: linear-gradient(145deg, #5a6178 0%, #3d4758 50%, #2a323c 100%);
   border-color: rgba(255, 255, 255, 0.25);
   color: #ffffff;
@@ -1711,6 +1818,12 @@ input:checked + .toggle-switch:active .toggle-slider {
     0 8px 20px rgba(45, 55, 72, 0.3),
     0 0 25px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .save-draft-button:hover::after {
@@ -1763,7 +1876,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .publish-button:hover:not(:disabled) {
-  transform: translateY(-3px) scale(1.02) rotateX(3deg);
+  transform: translate3d(0, -3px, 0) scale(1.02) rotateX(3deg);
   background: linear-gradient(145deg, #5a6fd8 0%, #6a4190 50%, #4c63d2 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
@@ -1773,6 +1886,12 @@ input:checked + .toggle-switch:active .toggle-slider {
     0 10px 25px rgba(118, 75, 162, 0.4),
     0 0 30px rgba(90, 103, 216, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .publish-button:hover:not(:disabled)::after {
@@ -2004,7 +2123,7 @@ input:checked + .toggle-switch:active .toggle-slider {
   box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
 }
 
-/* Enhanced Button Animations with Ease-In */
+/* Enhanced Button Animations with Ease-In and Smooth Text Rendering */
 .add-tag-btn,
 .add-question-button,
 .add-answer-button,
@@ -2021,9 +2140,15 @@ input:checked + .toggle-switch:active .toggle-slider {
   transition: all 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19);
   cursor: pointer;
   user-select: none;
+  /* Critical text rendering optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
-/* Ease-in hover animations */
+/* Smooth hover animations without text jumping */
 .add-tag-btn:hover,
 .add-question-button:hover,
 .add-answer-button:hover,
@@ -2035,7 +2160,11 @@ input:checked + .toggle-switch:active .toggle-slider {
 .question-tab:hover,
 .remove-tag-btn:hover {
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform: translateY(-3px) scale(1.02);
+  transform: translate3d(0, -3px, 0) scale(1.02);
+  /* Preserve text rendering during animation */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Specific button hover effects */
@@ -2113,7 +2242,13 @@ input:checked + .toggle-switch:active .toggle-slider {
 .publish-button:active,
 .question-tab:active {
   transition: all 0.1s cubic-bezier(0.55, 0.05, 0.68, 0.19);
-  transform: translateY(1px) scale(0.98);
+  transform: translate3d(0, 1px, 0) scale(0.98);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .remove-answer-button:active {
@@ -2164,20 +2299,26 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .tag:hover {
-  transform: translateY(-3px) scale(1.05);
+  transform: translate3d(0, -3px, 0) scale(1.05);
   box-shadow: 
     0 8px 25px rgba(78, 205, 196, 0.4),
     0 0 15px rgba(68, 160, 141, 0.3);
+  /* Smooth text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 @keyframes tag-appear {
   0% {
     opacity: 0;
-    transform: scale(0.8) translateY(-15px);
+    transform: scale(0.8) translate3d(0, -15px, 0);
   }
   100% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1) translate3d(0, 0, 0);
   }
 }
 
