@@ -209,29 +209,7 @@ body, html {
     inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Revolutionary shimmer effect for inputs */
-.form-input::before, 
-.form-textarea::before, 
-.form-select::before,
-.question-text-input::before,
-.answer-input::before,
-.setting-input::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg, 
-    transparent, 
-    rgba(102, 126, 234, 0.1) 50%,
-    transparent
-  );
-  transition: left 0.8s cubic-bezier(0.55, 0.05, 0.68, 0.19);
-  z-index: 1;
-  pointer-events: none;
-}
+
 
 .form-input:hover, 
 .form-textarea:hover, 
@@ -536,12 +514,6 @@ body, html {
   border-radius: 28px;
   pointer-events: none;
   opacity: 0.7;
-  animation: subtle-shimmer 4s ease-in-out infinite;
-}
-
-@keyframes subtle-shimmer {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 0.9; }
 }
 
 .toggle-switch input {
@@ -829,16 +801,9 @@ input:checked + .toggle-switch:active .toggle-slider {
 .correct-toggle input:checked + .correct-slider::before {
   background: linear-gradient(45deg, 
     rgba(255, 255, 255, 0.2) 0%, 
-    rgba(16, 185, 129, 0.1) 25%,
-    rgba(5, 150, 105, 0.1) 50%,
+    rgba(16, 185, 129, 0.1) 25%,    rgba(5, 150, 105, 0.1) 50%,
     rgba(16, 185, 129, 0.1) 75%,
     rgba(255, 255, 255, 0.2) 100%);
-  animation: active-shimmer 2.5s ease-in-out infinite;
-}
-
-@keyframes active-shimmer {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
 }
 
 .correct-toggle input:checked + .correct-slider::after {
@@ -1058,28 +1023,7 @@ input:checked + .toggle-switch:active .toggle-slider {
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-/* Revolutionary shimmer effect */
-.question-tab::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2) 30%,
-    rgba(102, 126, 234, 0.3) 50%,
-    rgba(255, 255, 255, 0.2) 70%,
-    transparent
-  );
-  transition: left 0.8s cubic-bezier(0.55, 0.05, 0.68, 0.19);
-  z-index: 1;
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);  backdrop-filter: blur(10px);
 }
 
 /* Revolutionary ripple effect */
@@ -1099,12 +1043,7 @@ input:checked + .toggle-switch:active .toggle-slider {
   transform: translate(-50%, -50%);
   transition: all 0.6s ease-out;
   border-radius: 50%;
-  opacity: 0;
-  z-index: 0;
-}
-
-.question-tab:hover::before {
-  left: 120%;
+  opacity: 0;  z-index: 0;
 }
 
 .question-tab:hover::after {
@@ -1818,7 +1757,6 @@ input:checked + .toggle-switch:active .toggle-slider {
     0 8px 20px rgba(45, 55, 72, 0.3),
     0 0 25px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  /* Smooth text rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -1841,7 +1779,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 .publish-button {
   background: linear-gradient(145deg, #667eea 0%, #764ba2 50%, #5a67d8 100%);
   background-size: 200% 100%;
-  animation: gradient-shift 3s ease infinite;
+  animation: gradient-shift 3s ease-in-out infinite;
   color: white;
   border: 2px solid rgba(102, 126, 234, 0.3);
 }
@@ -1876,10 +1814,8 @@ input:checked + .toggle-switch:active .toggle-slider {
 }
 
 .publish-button:hover:not(:disabled) {
-  transform: translate3d(0, -3px, 0) scale(1.02) rotateX(3deg);
-  background: linear-gradient(145deg, #5a6fd8 0%, #6a4190 50%, #4c63d2 100%);
+  transform: translate3d(0, -3px, 0) scale(1.02) rotateX(3deg);  background: linear-gradient(145deg, #5a6fd8 0%, #6a4190 50%, #4c63d2 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
   border-color: rgba(102, 126, 234, 0.6);
   box-shadow: 
     0 20px 50px rgba(102, 126, 234, 0.6),
@@ -1901,17 +1837,7 @@ input:checked + .toggle-switch:active .toggle-slider {
 
 .publish-button:active:not(:disabled)::before {
   width: 350px;
-  height: 350px;
-  transition: all 0.3s cubic-bezier(0.55, 0.05, 0.68, 0.19);
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+  height: 350px;  transition: all 0.3s cubic-bezier(0.55, 0.05, 0.68, 0.19);
 }
 
 @keyframes gradient-shift {
@@ -1925,22 +1851,10 @@ input:checked + .toggle-switch:active .toggle-slider {
 
 /* Loading animation for disabled publish button */
 .publish-button:disabled {
-  background: linear-gradient(90deg, #4a5568, #718096, #4a5568);
-  background-size: 200% 100%;
-  animation: loading-shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #4a5568, #718096, #4a5568);  background-size: 200% 100%;
   cursor: not-allowed;
   transform: none;
-  opacity: 0.6;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-@keyframes loading-shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+  opacity: 0.6;  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Question Settings */
@@ -2208,19 +2122,8 @@ input:checked + .toggle-switch:active .toggle-slider {
 .publish-button:hover:not(:disabled) {
   box-shadow: 
     0 20px 50px rgba(102, 126, 234, 0.6),
-    0 0 30px rgba(118, 75, 162, 0.4);
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 50%, #5a6fd8 100%);
+    0 0 30px rgba(118, 75, 162, 0.4);  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 50%, #5a6fd8 100%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
 }
 
 .save-draft-button:hover {
@@ -2326,7 +2229,6 @@ input:checked + .toggle-switch:active .toggle-slider {
 .form-input,
 .form-textarea,
 .form-select,
-.question-text-input,
 .answer-input,
 .setting-input {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
