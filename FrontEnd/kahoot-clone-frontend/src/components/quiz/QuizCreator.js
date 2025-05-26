@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { createQuiz } from '../../services/api';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useAutoResize } from '../../hooks/useAutoResize';
 import './QuizCreator.css';
 
 const QuizCreator = () => {
@@ -38,6 +39,11 @@ const QuizCreator = () => {
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [tagInput, setTagInput] = useState('');
 
+  // Auto-resize hooks for textareas
+  const descriptionResize = useAutoResize(quizData.description, 3, 8);
+  const questionTextResizes = questions.map((question) => 
+    useAutoResize(question.question, 3, 10)
+  );
   const handleQuizDataChange = (field, value) => {
     setQuizData(prev => ({ ...prev, [field]: value }));
   };
@@ -227,6 +233,7 @@ const QuizCreator = () => {
           <div className="form-group">
             <label className="form-label">Description</label>
             <textarea
+              ref={descriptionResize.textareaRef}
               value={quizData.description}
               onChange={(e) => handleQuizDataChange('description', e.target.value)}
               placeholder="Describe what your quiz is about..."
@@ -386,6 +393,7 @@ const QuizCreator = () => {
                 <div className="question-text-group">
                   <label className="form-label">Question Text *</label>
                   <textarea
+                    ref={questionTextResizes[questionIndex]?.textareaRef}
                     value={question.question}
                     onChange={(e) => handleQuestionChange(questionIndex, 'question', e.target.value)}
                     placeholder="Enter your question here..."

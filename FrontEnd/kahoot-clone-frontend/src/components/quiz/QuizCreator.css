@@ -209,6 +209,17 @@ body, html {
     inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
+/* Smooth height transitions for auto-resizing textareas */
+.form-textarea,
+.question-text-input {
+  transition: height 0.2s ease-out, 
+              border-color 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19),
+              background 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19),
+              box-shadow 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19),
+              transform 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19);
+  resize: none; /* Disable manual resize since we have auto-resize */
+}
+
 
 
 .form-input:hover, 
@@ -305,7 +316,7 @@ body, html {
 
 .form-textarea {
   min-height: 120px;
-  resize: vertical;
+  resize: none; /* Disabled manual resize since we have auto-resize */
 }
 
 .form-row {
@@ -1275,10 +1286,10 @@ input:checked + .toggle-switch:active .toggle-slider {
   border: 2px solid rgba(255, 255, 255, 0.12);
   border-radius: 15px;
   background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
+    color: #ffffff;
   font-size: 1.1rem;
   min-height: 120px;
-  resize: vertical;
+  resize: none; /* Disabled manual resize since we have auto-resize */
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
 }
