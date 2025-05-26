@@ -507,7 +507,7 @@ const QuizCreator = () => {
                     <select
                       value={question.difficulty}
                       onChange={(e) => handleQuestionChange(questionIndex, 'difficulty', e.target.value)}
-                      className="setting-input"
+                      className="form-select"
                     >
                       <option value="easy">Easy</option>
                       <option value="medium">Medium</option>
