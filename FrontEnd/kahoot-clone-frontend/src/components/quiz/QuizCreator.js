@@ -101,6 +101,24 @@ const QuizCreator = () => {
     }
   };
 
+  const incrementPoints = (questionIndex) => {
+    const newQuestions = [...questions];
+    const currentPoints = newQuestions[questionIndex].points;
+    if (currentPoints < 2000) {
+      newQuestions[questionIndex].points = currentPoints + 100;
+      setQuestions(newQuestions);
+    }
+  };
+
+  const decrementPoints = (questionIndex) => {
+    const newQuestions = [...questions];
+    const currentPoints = newQuestions[questionIndex].points;
+    if (currentPoints > 100) {
+      newQuestions[questionIndex].points = currentPoints - 100;
+      setQuestions(newQuestions);
+    }
+  };
+
   const addQuestion = () => {
     const newQuestion = {
       question: '',
@@ -491,15 +509,27 @@ const QuizCreator = () => {
 
                   <div className="setting-group">
                     <label className="setting-label">Points</label>
-                    <input
-                      type="number"
-                      value={question.points}
-                      onChange={(e) => handleQuestionChange(questionIndex, 'points', parseInt(e.target.value))}
-                      className="setting-input"
-                      min={100}
-                      max={2000}
-                      step={100}
-                    />
+                    <div className="points-selector">
+                      <button
+                        type="button"
+                        onClick={() => decrementPoints(questionIndex)}
+                        className="points-button points-decrease"
+                        disabled={question.points <= 100}
+                      >
+                        −
+                      </button>
+                      <div className="points-display">
+                        {question.points}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => incrementPoints(questionIndex)}
+                        className="points-button points-increase"
+                        disabled={question.points >= 2000}
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
 
                   <div className="setting-group">
