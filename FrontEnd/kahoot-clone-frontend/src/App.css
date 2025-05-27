@@ -73,15 +73,6 @@ h1, h2, h3, h4, h5, h6 {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
-.quiz-card {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 15px;
-  margin: 10px 0;
-  background-color: white;
-}
-
 .quiz-list {
   display: flex;
   flex-direction: column;

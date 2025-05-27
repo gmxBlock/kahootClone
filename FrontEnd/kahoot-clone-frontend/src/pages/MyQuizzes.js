@@ -135,7 +135,6 @@ const MyQuizzes = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
-            <span className="search-icon">🔍</span>
           </div>
           
           <button

@@ -166,7 +166,6 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   transition: left 0.5s ease;
 }
 
@@ -283,7 +282,7 @@
     rgba(255, 255, 255, 0.04) 100%
   );
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   padding: 0;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.55, 0.05, 0.68, 0.19);
@@ -340,6 +339,7 @@
   font-weight: 600;
   text-transform: capitalize;
   white-space: nowrap;
+  border: 2px solid #ffffff1a;
 }
 
 .quiz-card-body {
