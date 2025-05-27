@@ -101,10 +101,79 @@ router.get('/', optionalAuth, async (req, res) => {
         hasNextPage: pageNum < Math.ceil(total / limitNum),
         hasPrevPage: pageNum > 1
       }
-    });
-  } catch (error) {
+    });  } catch (error) {
     console.error('Get quizzes error:', error);
     res.status(500).json({ message: 'Server error while fetching quizzes' });
+  }
+});
+
+// @route   GET /api/quiz/my-quizzes
+// @desc    Get user's own quizzes
+// @access  Private
+router.get('/my-quizzes', auth, async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 12,
+      search,
+      sortBy = 'updatedAt',
+      sortOrder = 'desc'
+    } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build query for user's quizzes
+    let query = { creator: req.user._id };
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } },
+        { category: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Build sort object
+    const sort = {};
+    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+
+    const [quizzes, total] = await Promise.all([
+      Quiz.find(query)
+        .populate('creator', 'username')
+        .sort(sort)
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Quiz.countDocuments(query)
+    ]);
+
+    // Add play count and other stats
+    const enrichedQuizzes = quizzes.map(quiz => ({
+      ...quiz,
+      playCount: quiz.playCount || 0,
+      questionCount: quiz.questions ? quiz.questions.length : 0
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        quizzes: enrichedQuizzes,
+        totalQuizzes: total,
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        hasNextPage: pageNum < Math.ceil(total / limitNum),
+        hasPrevPage: pageNum > 1
+      }
+    });
+  } catch (error) {
+    console.error('Get my quizzes error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching your quizzes' 
+    });
   }
 });
 

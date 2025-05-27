@@ -1,14 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { createQuiz } from '../../services/api';
+import { createQuiz, fetchQuizById, updateQuiz } from '../../services/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { useAutoResize } from '../../hooks/useAutoResize';
 import './QuizCreator.css';
 
 const QuizCreator = () => {
   const navigate = useNavigate();
+  const { id: quizId } = useParams(); // Get quiz ID from URL params
   const { user } = useContext(AuthContext);
+  const isEditing = Boolean(quizId); // Determine if we're editing
   
   // Quiz metadata
   const [quizData, setQuizData] = useState({
@@ -35,10 +37,10 @@ const QuizCreator = () => {
   
   // UI state
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEditing);
   const [error, setError] = useState(null);
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [tagInput, setTagInput] = useState('');
-
   // Auto-resize hooks for textareas
   const descriptionResize = useAutoResize(quizData.description, 3, 8);
   
@@ -55,6 +57,55 @@ const QuizCreator = () => {
     useAutoResize(questions[8]?.question || '', 3, 8),
     useAutoResize(questions[9]?.question || '', 3, 8)
   ];
+
+  // Load existing quiz data when editing
+  useEffect(() => {
+    if (isEditing && quizId) {
+      loadQuizData();
+    }
+  }, [isEditing, quizId]);
+
+  const loadQuizData = async () => {
+    try {
+      setInitialLoading(true);
+      const response = await fetchQuizById(quizId);
+      
+      if (response.quiz) {
+        const quiz = response.quiz;
+        
+        // Check if user owns this quiz
+        if (quiz.creator._id !== user.id) {
+          setError('You can only edit your own quizzes');
+          navigate('/my-quizzes');
+          return;
+        }
+        
+        // Set quiz metadata
+        setQuizData({
+          title: quiz.title || '',
+          description: quiz.description || '',
+          category: quiz.category || 'general',
+          difficulty: quiz.difficulty || 'mixed',
+          isPublic: quiz.isPublic !== undefined ? quiz.isPublic : true,
+          tags: quiz.tags || []
+        });
+        
+        // Set questions
+        if (quiz.questions && quiz.questions.length > 0) {
+          setQuestions(quiz.questions);
+        }
+        
+        // Set active question to first
+        setActiveQuestion(0);
+      }
+    } catch (err) {
+      console.error('Error loading quiz:', err);
+      setError('Failed to load quiz data');
+      navigate('/my-quizzes');
+    } finally {
+      setInitialLoading(false);
+    }
+  };
 
   const handleQuizDataChange = (field, value) => {
     setQuizData(prev => ({ ...prev, [field]: value }));
@@ -189,7 +240,6 @@ const QuizCreator = () => {
     
     return errors;
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -208,32 +258,40 @@ const QuizCreator = () => {
         questions: questions
       };
       
-      const response = await createQuiz(quizPayload);
+      let response;
+      if (isEditing) {
+        response = await updateQuiz(quizId, quizPayload);
+      } else {
+        response = await createQuiz(quizPayload);
+      }
       
-      if (response.success) {
-        navigate('/dashboard', { 
-          state: { message: 'Quiz created successfully!' }
+      if (response.success || response.quiz) {
+        const successMessage = isEditing ? 'Quiz updated successfully!' : 'Quiz created successfully!';
+        navigate('/my-quizzes', { 
+          state: { message: successMessage }
         });
       } else {
-        setError(response.message || 'Failed to create quiz');
+        setError(response.message || `Failed to ${isEditing ? 'update' : 'create'} quiz`);
       }
     } catch (err) {
-      console.error('Quiz creation error:', err);
-      setError(err.response?.data?.message || 'Failed to create quiz. Please try again.');
+      console.error(`Quiz ${isEditing ? 'update' : 'creation'} error:`, err);
+      setError(err.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} quiz. Please try again.`);
     } finally {
       setLoading(false);
     }
   };
-
-  if (loading) {
+  if (loading || initialLoading) {
     return <LoadingSpinner />;
   }
 
-  return (
-    <div className="quiz-creator-container">
+  return (    <div className="quiz-creator-container">
       <div className="quiz-creator-header">
-        <h1 className="quiz-creator-title">Create Your Quiz</h1>
-        <p className="quiz-creator-subtitle">Design an engaging quiz for your audience</p>
+        <h1 className="quiz-creator-title">
+          {isEditing ? 'Edit Your Quiz' : 'Create Your Quiz'}
+        </h1>
+        <p className="quiz-creator-subtitle">
+          {isEditing ? 'Update your quiz content and settings' : 'Design an engaging quiz for your audience'}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="quiz-form">
@@ -563,11 +621,10 @@ const QuizCreator = () => {
           <div className="footer-info">
             <span>{questions.length} question{questions.length !== 1 ? 's' : ''}</span>
           </div>
-          
-          <div className="footer-actions">
+            <div className="footer-actions">
             <button
               type="button"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(isEditing ? '/my-quizzes' : '/dashboard')}
               className="save-draft-button"
             >
               Cancel
@@ -577,7 +634,7 @@ const QuizCreator = () => {
               className="publish-button"
               disabled={loading}
             >
-              {loading ? 'Creating Quiz...' : 'Create Quiz'}
+              {loading ? (isEditing ? 'Updating Quiz...' : 'Creating Quiz...') : (isEditing ? 'Update Quiz' : 'Create Quiz')}
             </button>
           </div>
         </div>

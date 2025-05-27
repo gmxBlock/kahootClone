@@ -45,6 +45,14 @@ export const deleteQuiz = async (quizId) => {
   return response.data;
 };
 
+export const fetchMyQuizzes = async (page = 1, limit = 10) => {
+  const response = await axios.get(`${API_URL}/quiz/my-quizzes`, {
+    params: { page, limit },
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
 // Profile API functions
 export const getUserProfile = async () => {
   const response = await axios.get(`${API_URL}/user/profile`, {

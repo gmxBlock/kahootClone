@@ -27,7 +27,8 @@ const Header = () => {
             // Authenticated user navigation
             <>
               <Link to="/dashboard" className="nav-link">Dashboard</Link>
-              <Link to="/quizzes" className="nav-link">My Quizzes</Link>
+              <Link to="/quizzes" className="nav-link">Browse Quizzes</Link>
+              <Link to="/my-quizzes" className="nav-link">My Quizzes</Link>
               <Link to="/quiz-creator" className="nav-link">Create Quiz</Link>
               <Link to="/profile" className="nav-link">Profile</Link>
               <div className="user-menu">

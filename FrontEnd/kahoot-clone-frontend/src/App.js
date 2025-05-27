@@ -14,6 +14,7 @@ import Register from './components/auth/Register';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import QuizList from './components/quiz/QuizList';
 import QuizCreator from './components/quiz/QuizCreator';
+import MyQuizzes from './pages/MyQuizzes';
 import GameLobby from './components/game/GameLobby';
 import './App.css';
 
@@ -46,6 +47,16 @@ const App = () => {
           <Route path="/quiz-creator" element={
             <ProtectedRoute>
               <QuizCreator />
+            </ProtectedRoute>
+          } />
+          <Route path="/quiz-creator/:id" element={
+            <ProtectedRoute>
+              <QuizCreator />
+            </ProtectedRoute>
+          } />
+          <Route path="/my-quizzes" element={
+            <ProtectedRoute>
+              <MyQuizzes />
             </ProtectedRoute>
           } />
           <Route path="/game-lobby" element={<GameLobby />} />
