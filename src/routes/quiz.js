@@ -103,15 +103,16 @@ router.get('/', optionalAuth, async (req, res) => {
       }
     });  } catch (error) {
     console.error('Get quizzes error:', error);
-    res.status(500).json({ message: 'Server error while fetching quizzes' });
-  }
+    res.status(500).json({ message: 'Server error while fetching quizzes' });  }
 });
 
-// @route   GET /api/quiz/my-quizzes
+// @route   GET /api/quiz/my-quizzes  
 // @desc    Get user's own quizzes
 // @access  Private
 router.get('/my-quizzes', auth, async (req, res) => {
   try {
+    console.log('Accessing my-quizzes route for user:', req.user._id);
+    
     const {
       page = 1,
       limit = 12,
@@ -157,6 +158,8 @@ router.get('/my-quizzes', auth, async (req, res) => {
       questionCount: quiz.questions ? quiz.questions.length : 0
     }));
 
+    console.log(`Found ${enrichedQuizzes.length} quizzes for user ${req.user._id}`);
+
     res.json({
       success: true,
       data: {
@@ -174,6 +177,24 @@ router.get('/my-quizzes', auth, async (req, res) => {
       success: false, 
       message: 'Server error while fetching your quizzes' 
     });
+  }
+});
+
+// @route   GET /api/quiz/meta/categories
+// @desc    Get all quiz categories with counts  
+// @access  Public
+router.get('/meta/categories', async (req, res) => {
+  try {
+    const categories = await Quiz.aggregate([
+      { $match: { isPublic: true } },
+      { $group: { _id: '$category', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    res.json({ categories });
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({ message: 'Server error while fetching categories' });
   }
 });
 
@@ -291,24 +312,6 @@ router.get('/:id/host', auth, async (req, res) => {
   } catch (error) {
     console.error('Get quiz for hosting error:', error);
     res.status(500).json({ message: 'Server error while fetching quiz for hosting' });
-  }
-});
-
-// @route   GET /api/quiz/categories
-// @desc    Get all quiz categories with counts
-// @access  Public
-router.get('/meta/categories', async (req, res) => {
-  try {
-    const categories = await Quiz.aggregate([
-      { $match: { isPublic: true } },
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-      { $sort: { count: -1 } }
-    ]);
-
-    res.json({ categories });
-  } catch (error) {
-    console.error('Get categories error:', error);
-    res.status(500).json({ message: 'Server error while fetching categories' });
   }
 });
 
