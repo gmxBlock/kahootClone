@@ -208,11 +208,9 @@ const MyQuizzes = () => {
                 <div className="quiz-meta">
                   <div className="quiz-stats">
                     <span className="stat">
-                      <span className="stat-icon">❓</span>
                       {quiz.questions?.length || 0} questions
                     </span>
                     <span className="stat">
-                      <span className="stat-icon">👥</span>
                       {quiz.playCount || 0} plays
                     </span>
                   </div>
@@ -248,19 +246,13 @@ const MyQuizzes = () => {
                   className="action-btn play-btn"
                   disabled={actionLoading === quiz._id}
                 >
-                  {actionLoading === quiz._id ? (
-                    <span className="btn-loading">⏳</span>
-                  ) : (
-                    <span className="btn-icon">▶️</span>
-                  )}
-                  Start Game
+                  Start
                 </button>
                 
                 <button
                   onClick={() => handleEditQuiz(quiz._id)}
                   className="action-btn edit-btn"
                 >
-                  <span className="btn-icon">✏️</span>
                   Edit
                 </button>
                 
@@ -271,7 +263,6 @@ const MyQuizzes = () => {
                   }}
                   className="action-btn delete-btn"
                 >
-                  <span className="btn-icon">🗑️</span>
                   Delete
                 </button>
               </div>
