@@ -321,14 +321,6 @@
   margin-bottom: 1.5rem;
 }
 
-.stat-item {
-  background: white;
-  padding: 1rem;
-  border-radius: 10px;
-  text-align: center;
-  border: 2px solid #e1e5e9;
-}
-
 .stat-value {
   font-size: 2rem;
   font-weight: 700;

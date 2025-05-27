@@ -189,7 +189,7 @@ const Dashboard = () => {
             <h2>Available Quizzes</h2>
             <div className="quiz-grid">
               {recentQuizzes.slice(0, 4).map((quiz) => (
-                <div key={quiz._id} className="quiz-card">
+                <div key={quiz._id} className="quiz-card-dashboard">
                   <div className="quiz-header">
                     <h4>{quiz.title}</h4>
                     <span className="quiz-category">{quiz.category}</span>

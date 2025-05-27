@@ -360,7 +360,7 @@
   gap: 1.5rem;
 }
 
-.quiz-card {
+.quiz-card-dashboard {
   background: linear-gradient(145deg, 
     rgba(255, 255, 255, 0.08) 0%,
     rgba(255, 255, 255, 0.04) 100%
@@ -372,7 +372,7 @@
   backdrop-filter: blur(15px);
 }
 
-.quiz-card:hover {
+.quiz-card-dashboard:hover {
   border-color: rgba(102, 126, 234, 0.3);
   transform: translateY(-2px);
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
