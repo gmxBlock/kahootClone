@@ -111,3 +111,38 @@ export const getGameStatus = async (gamePin) => {
   });
   return response.data;
 };
+
+export const getGameDetails = async (gamePin) => {
+  const response = await axios.get(`${API_URL}/game/${gamePin}`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+export const getGameForHost = async (gamePin) => {
+  const response = await axios.get(`${API_URL}/game/${gamePin}/host`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+export const updateGameSettings = async (gamePin, settings) => {
+  const response = await axios.put(`${API_URL}/game/${gamePin}/settings`, settings, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+export const endGame = async (gamePin) => {
+  const response = await axios.delete(`${API_URL}/game/${gamePin}`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+export const getGameResults = async (gamePin) => {
+  const response = await axios.get(`${API_URL}/game/${gamePin}/results`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
