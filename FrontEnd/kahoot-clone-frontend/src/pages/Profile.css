@@ -628,7 +628,7 @@
 }
 
 .skill-tag-edit:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
@@ -651,8 +651,8 @@
 }
 
 .remove-skill-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
   transform: scale(1.1);
+  translate: 0 2px;;
 }
 
 /* Error message in edit form */
