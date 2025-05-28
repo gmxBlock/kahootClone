@@ -25,8 +25,14 @@ const server = http.createServer(app);
 // Socket.io setup
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3001",
-    methods: ["GET", "POST"]
+    origin: [
+      "http://localhost:3001",
+      "http://127.0.0.1:3001", 
+      "http://165.22.18.156:3001", // Your frontend IP
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
+    methods: ["GET", "POST"],
+    credentials: true
   },
   pingTimeout: parseInt(process.env.SOCKET_PING_TIMEOUT) || 60000,
   pingInterval: parseInt(process.env.SOCKET_PING_INTERVAL) || 25000
@@ -94,8 +100,10 @@ const limiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   skip: (req) => {
-    // Skip rate limiting for health checks
-    return req.path === '/health' || req.path === '/api/health';
+    // Skip rate limiting for health checks and Socket.IO endpoints
+    return req.path === '/health' || 
+           req.path === '/api/health' || 
+           req.path.startsWith('/socket.io/');
   }
 });
 app.use('/api/', limiter);

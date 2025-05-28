@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO Connection Test</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Socket.IO Connection Test</h1>
+    <div id="status">Testing...</div>
+    <div id="logs"></div>
+    
+    <script>
+        const serverUrl = 'http://165.22.18.156:3000';
+        const statusDiv = document.getElementById('status');
+        const logsDiv = document.getElementById('logs');
+        
+        function addLog(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logsDiv.appendChild(logEntry);
+            console.log(message);
+        }
+        
+        addLog('Testing connection to: ' + serverUrl);
+        
+        // Test Socket.IO connection
+        const socket = io(serverUrl, {
+            transports: ['websocket', 'polling'],
+            timeout: 10000
+        });
+        
+        socket.on('connect', () => {
+            statusDiv.innerHTML = '<span style="color: green;">✅ CONNECTED</span>';
+            addLog('Socket connected successfully! ID: ' + socket.id, 'success');
+            
+            // Test a game event
+            socket.emit('join-as-host', { 
+                gamePin: 'TEST123', 
+                userId: 'test-user-id' 
+            });
+            addLog('Sent test join-as-host event');
+        });
+        
+        socket.on('connect_error', (error) => {
+            statusDiv.innerHTML = '<span style="color: red;">❌ CONNECTION FAILED</span>';
+            addLog('Connection error: ' + error.message, 'error');
+            
+            if (error.message.includes('CORS')) {
+                addLog('CORS error detected - server may not allow your frontend URL', 'error');
+            }
+            if (error.message.includes('429')) {
+                addLog('Rate limiting error - too many requests', 'error');
+            }
+        });
+        
+        socket.on('disconnect', (reason) => {
+            statusDiv.innerHTML = '<span style="color: orange;">⚠️ DISCONNECTED</span>';
+            addLog('Disconnected: ' + reason, 'error');
+        });
+          // Test regular HTTP endpoint
+        fetch(serverUrl + '/health', {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include'
+        })
+            .then(response => {
+                addLog('HTTP response status: ' + response.status, response.ok ? 'success' : 'error');
+                return response.json();
+            })
+            .then(data => {
+                addLog('HTTP health check passed: ' + JSON.stringify(data), 'success');
+            })
+            .catch(error => {
+                addLog('HTTP health check failed: ' + error.message, 'error');
+                addLog('This might be a CORS issue for HTTP requests (Socket.IO uses different mechanism)', 'info');
+            });
+    </script>
+</body>
+</html>

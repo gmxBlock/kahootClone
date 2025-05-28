@@ -6,9 +6,10 @@ const socket = io(SOCKET_URL || 'http://localhost:3000', {
   transports: ['websocket', 'polling'],
   autoConnect: false,
   reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionAttempts: 5,
-  timeout: 10000,
+  reconnectionDelay: 2000, // Increase delay to avoid rate limiting
+  reconnectionAttempts: 3, // Reduce attempts to avoid rate limiting
+  timeout: 15000, // Increase timeout
+  forceNew: false
 });
 
 // Add connection event listeners for debugging
@@ -17,6 +18,7 @@ socket.on('connect', () => {
     socketId: socket.id,
     url: SOCKET_URL || 'http://localhost:3000'
   });
+  connectionAttempts = 0; // Reset connection attempts on successful connection
 });
 
 socket.on('disconnect', (reason) => {
@@ -29,28 +31,58 @@ socket.on('connect_error', (error) => {
     description: error.description,
     context: error.context,
     type: error.type,
-    url: SOCKET_URL || 'http://localhost:3000'
+    url: SOCKET_URL || 'http://localhost:3000',
+    attempts: connectionAttempts
   });
   
   // Provide helpful error messages
   if (error.message.includes('xhr poll error') || error.message.includes('websocket error')) {
     console.error('💡 Suggestion: Check if your server is running and accessible at:', SOCKET_URL || 'http://localhost:3000');
   }
+  
+  // Handle specific error types that might indicate rate limiting
+  if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
+    console.error('⚠️ Rate limiting detected. Increasing delay between connection attempts.');
+    connectionAttempts = maxConnectionAttempts; // Stop further attempts
+  }
 });
 
-// Connection management
+// Connection management with better error handling
+let connectionAttempts = 0;
+const maxConnectionAttempts = 3;
+let lastConnectionAttempt = 0;
+const minTimeBetweenAttempts = 5000; // 5 seconds
+
 export const connectSocket = () => {
+  const now = Date.now();
+  
   console.log('🔌 Attempting to connect socket...', {
     currentState: socket.connected,
     socketId: socket.id,
-    url: SOCKET_URL || 'http://localhost:3000'
+    url: SOCKET_URL || 'http://localhost:3000',
+    attempts: connectionAttempts,
+    timeSinceLastAttempt: now - lastConnectionAttempt
   });
 
+  // Prevent rapid reconnection attempts that trigger rate limiting
+  if (connectionAttempts >= maxConnectionAttempts) {
+    console.warn('⚠️ Maximum connection attempts reached. Please check server connectivity.');
+    return socket;
+  }
+
+  if (now - lastConnectionAttempt < minTimeBetweenAttempts) {
+    console.warn('⚠️ Waiting before next connection attempt to avoid rate limiting...');
+    return socket;
+  }
+
   if (!socket.connected) {
+    lastConnectionAttempt = now;
+    connectionAttempts++;
     socket.connect();
-    console.log('🔄 Socket connection initiated');
+    console.log('🔄 Socket connection initiated (attempt', connectionAttempts, ')');
   } else {
     console.log('✅ Socket already connected');
+    connectionAttempts = 0; // Reset on successful connection
   }
   return socket;
 };
@@ -93,6 +125,23 @@ export const emitEvent = (event, data) => {
       event,
       data
     });
+    
+    // Attempt to reconnect if we haven't hit the limit
+    if (connectionAttempts < maxConnectionAttempts) {
+      console.log('🔄 Attempting to reconnect socket before emitting...');
+      connectSocket();
+      
+      // Wait a moment and try again
+      setTimeout(() => {
+        if (socket.connected) {
+          console.log(`🔄 Retrying emit after reconnection: ${event}`);
+          socket.emit(event, data);
+        } else {
+          console.error(`❌ Still not connected after reconnection attempt for: ${event}`);
+        }
+      }, 1000);
+    }
+    
     return false;
   }
 };
@@ -154,6 +203,45 @@ export const isConnected = () => {
 export const getSocketId = () => {
   return socket.id;
 };
+
+// Utility functions for debugging and manual control
+export const resetConnectionAttempts = () => {
+  connectionAttempts = 0;
+  lastConnectionAttempt = 0;
+  console.log('🔄 Connection attempts reset');
+};
+
+export const getConnectionStatus = () => {
+  return {
+    connected: socket.connected,
+    socketId: socket.id,
+    attempts: connectionAttempts,
+    maxAttempts: maxConnectionAttempts,
+    lastAttempt: lastConnectionAttempt,
+    url: SOCKET_URL || 'http://localhost:3000'
+  };
+};
+
+export const forceReconnect = () => {
+  console.log('🔌 Force reconnecting socket...');
+  resetConnectionAttempts();
+  if (socket.connected) {
+    socket.disconnect();
+  }
+  return connectSocket();
+};
+
+// Make debugging functions available globally
+if (typeof window !== 'undefined') {
+  window.socketDebug = {
+    status: getConnectionStatus,
+    reset: resetConnectionAttempts,
+    reconnect: forceReconnect,
+    connect: connectSocket,
+    disconnect: disconnectSocket
+  };
+  console.log('💡 Socket debug tools available: window.socketDebug');
+}
 
 // Socket event listeners setup
 socket.on('connect', () => {
