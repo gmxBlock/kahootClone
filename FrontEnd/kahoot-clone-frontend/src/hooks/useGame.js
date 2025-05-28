@@ -144,6 +144,5 @@ const useGame = (gamePin) => {
     results: gameState.results
   };
 };
-};
 
 export default useGame;
