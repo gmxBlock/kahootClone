@@ -1,6 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { connectSocket, onEvent, offEvent } from '../services/socket';
+import { SOCKET_URL } from '../utils/constants';
 import './Home.css';
 
 const Home = () => {
@@ -8,6 +10,51 @@ const Home = () => {
   const { user } = useContext(AuthContext);
   const [gamePin, setGamePin] = useState('');
   const [showJoinModal, setShowJoinModal] = useState(false);
+  
+  // Socket debug state
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [socketId, setSocketId] = useState('');
+  const [debugLogs, setDebugLogs] = useState([]);
+
+  const addDebugLog = (message) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setDebugLogs(prev => [...prev.slice(-4), `[${timestamp}] ${message}`]);
+    console.log(`[SOCKET DEBUG] ${message}`);
+  };
+
+  useEffect(() => {
+    addDebugLog(`Socket URL: ${SOCKET_URL}`);
+    addDebugLog('Setting up socket listeners...');
+
+    const handleConnect = () => {
+      setSocketConnected(true);
+      setSocketId('connected'); // Simplified for display
+      addDebugLog('✅ Socket connected!');
+    };
+
+    const handleDisconnect = () => {
+      setSocketConnected(false);
+      setSocketId('');
+      addDebugLog('❌ Socket disconnected');
+    };
+
+    const handleConnectError = (error) => {
+      addDebugLog(`🚨 Connection error: ${error.message}`);
+    };
+
+    onEvent('connect', handleConnect);
+    onEvent('disconnect', handleDisconnect);
+    onEvent('connect_error', handleConnectError);
+
+    addDebugLog('Attempting socket connection...');
+    connectSocket();
+
+    return () => {
+      offEvent('connect', handleConnect);
+      offEvent('disconnect', handleDisconnect);
+      offEvent('connect_error', handleConnectError);
+    };
+  }, []);
 
   const handleStartPlaying = () => {
     if (user) {
@@ -57,6 +104,27 @@ const Home = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Socket Debug Display - Remove this after debugging */}
+      <div style={{
+        position: 'fixed',
+        top: '10px',
+        right: '10px',
+        background: 'rgba(0,0,0,0.8)',
+        color: 'white',
+        padding: '10px',
+        borderRadius: '8px',
+        fontSize: '12px',
+        maxWidth: '300px',
+        zIndex: 1000
+      }}>
+        <div><strong>Socket Status:</strong> {socketConnected ? '✅ Connected' : '❌ Disconnected'}</div>
+        <div><strong>URL:</strong> {SOCKET_URL}</div>
+        <div><strong>Logs:</strong></div>
+        {debugLogs.map((log, index) => (
+          <div key={index} style={{fontSize: '10px', opacity: 0.8}}>{log}</div>
+        ))}
       </div>
 
       {/* Join Game Modal */}
