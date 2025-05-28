@@ -72,48 +72,93 @@ const GameLobby = () => {
 
     // Game started confirmation
     onEvent('game-started', (data) => {
-      console.log('Game started:', data);
+      console.log('🎉 Game started event received:', data);
+      console.log('Event data details:', {
+        totalQuestions: data.totalQuestions,
+        questionData: data.questionData,
+        timestamp: new Date().toISOString()
+      });
       setGameStatus('active');
+      setIsStarting(false);
+      console.log('✅ Game status updated to active');
       // Update game context instead of navigating
       // The GameRoom component will handle the state change
     });
 
     // Error handling
     onEvent('error', (error) => {
-      console.error('Socket error:', error);
+      console.error('🚨 Socket error received:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        type: error.type,
+        timestamp: new Date().toISOString()
+      });
       setError(error.message || 'An error occurred');
       setIsStarting(false);
     });
   }, [gamePin, navigate, gameData]);
 
   const initializeGame = useCallback(async () => {
+    console.log('🔧 Initializing game...');
+    console.log('Initialization params:', {
+      gamePin,
+      isHost,
+      userId: user?.id,
+      userName: user?.name
+    });
+
     try {
       setLoading(true);
       
+      console.log('📡 Connecting to socket...');
       // Connect to socket
       await connectSocket();
       setSocketConnected(true);
+      console.log('✅ Socket connected successfully');
       
       // Setup socket event listeners
+      console.log('🎧 Setting up socket event listeners...');
       setupSocketListeners();
+      console.log('✅ Socket listeners setup complete');
       
       // Get game details from server
+      console.log('📊 Fetching game details from server...');
       const response = await getGameForHost(gamePin);
+      console.log('Server response:', response);
+      
       if (response.game) {
+        console.log('✅ Game data received:', {
+          gamePin: response.game.gamePin,
+          status: response.game.status,
+          playersCount: response.game.players?.length || 0,
+          settings: response.game.settings
+        });
         setGameData(response.game);
         setGameSettings(response.game.settings);
         setPlayers(response.game.players || []);
         setGameStatus(response.game.status);
+      } else {
+        console.warn('⚠️ No game data in server response');
       }
       
       // Join as host
-      joinAsHost(gamePin, user.id);
+      console.log('👑 Joining as host...');
+      const joinResult = joinAsHost(gamePin, user.id);
+      console.log('Join as host result:', joinResult);
       
     } catch (err) {
-      console.error('Failed to initialize game:', err);
-      setError('Failed to initialize game. Please try again.');
+      console.error('❌ Failed to initialize game:', err);
+      console.error('Initialization error details:', {
+        message: err.message,
+        stack: err.stack,
+        gamePin,
+        userId: user?.id
+      });
+      setError(`Failed to initialize game: ${err.message}`);
     } finally {
       setLoading(false);
+      console.log('🏁 Game initialization complete');
     }
   }, [gamePin, user, setupSocketListeners]);
 
@@ -141,24 +186,65 @@ const GameLobby = () => {
   };
 
   const handleStartGame = async () => {
+    console.log('🎮 Starting game process...');
+    console.log('Game PIN:', gamePin);
+    console.log('Is Host:', isHost);
+    console.log('User:', user);
+    console.log('Players count:', players.length);
+    console.log('Socket connected:', socketConnected);
+    console.log('Game status:', gameStatus);
+    console.log('Game data:', gameData);
+
     if (players.length < 1) {
+      console.warn('❌ Not enough players to start game');
       setError('At least 1 player is required to start the game');
       return;
     }
 
     try {
+      console.log('🚀 Attempting to start game...');
       setIsStarting(true);
       setError(null);
       
-      // Emit start game event
-      const success = startGame(gamePin);
-      if (!success) {
-        throw new Error('Failed to communicate with server');
+      // Check socket connection before attempting to start
+      if (!socketConnected) {
+        console.error('❌ Socket not connected, attempting to reconnect...');
+        await connectSocket();
+        setSocketConnected(true);
       }
       
+      console.log('📡 Emitting start-game event with PIN:', gamePin);
+      
+      // Emit start game event
+      const success = startGame(gamePin);
+      console.log('Start game emission result:', success);
+      
+      if (!success) {
+        console.error('❌ Failed to emit start game event - socket not connected');
+        throw new Error('Failed to communicate with server - socket not connected');
+      }
+      
+      console.log('✅ Start game event sent successfully, waiting for response...');
+      
+      // Set a timeout to detect if no response is received
+      setTimeout(() => {
+        if (gameStatus === 'waiting') {
+          console.error('⏰ Timeout: No response received from server after 10 seconds');
+          setError('Server not responding. Please try again.');
+          setIsStarting(false);
+        }
+      }, 10000);
+      
     } catch (err) {
-      console.error('Failed to start game:', err);
-      setError('Failed to start game. Please try again.');
+      console.error('❌ Failed to start game:', err);
+      console.error('Error details:', {
+        message: err.message,
+        stack: err.stack,
+        gamePin,
+        socketConnected,
+        playersCount: players.length
+      });
+      setError(`Failed to start game: ${err.message}`);
       setIsStarting(false);
     }
   };

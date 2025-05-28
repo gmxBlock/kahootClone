@@ -62,77 +62,153 @@ const socketHandler = (io) => {
         console.error('Join game error:', error);
         socket.emit('error', { message: error.message || 'Failed to join game' });
       }
-    });
-
-    // Join game as host
+    });    // Join game as host
     socket.on('join-as-host', async (data) => {
+      console.log('👑 Join as host event received:', {
+        data,
+        socketId: socket.id,
+        timestamp: new Date().toISOString()
+      });
+
       try {
         const { gamePin, userId } = data;
 
+        if (!gamePin || !userId) {
+          console.error('❌ Missing required data for join-as-host:', { gamePin, userId });
+          socket.emit('error', { message: 'Game PIN and User ID are required' });
+          return;
+        }
+
+        console.log(`📊 Looking for game with PIN: ${gamePin} for user: ${userId}`);
         const game = await Game.findOne({ gamePin }).populate('quiz');
+        
         if (!game) {
+          console.error(`❌ Game not found with PIN: ${gamePin}`);
           socket.emit('error', { message: 'Game not found' });
           return;
         }
 
+        console.log('✅ Game found:', {
+          gamePin: game.gamePin,
+          hostId: game.host.toString(),
+          requestingUserId: userId,
+          status: game.status
+        });
+
         // Verify host
         if (game.host.toString() !== userId) {
+          console.error(`❌ Host verification failed - Expected: ${game.host.toString()}, Got: ${userId}`);
           socket.emit('error', { message: 'Not authorized to host this game' });
           return;
         }
 
+        console.log('✅ Host verification successful');
+        console.log(`🏠 Joining socket rooms: ${gamePin}-host and ${gamePin}`);
         socket.join(`${gamePin}-host`);
         socket.join(gamePin);
 
-        // Send game state to host
-        socket.emit('host-joined', {
-          game: {
-            gamePin: game.gamePin,
-            status: game.status,
-            currentQuestion: game.currentQuestion,
-            quiz: game.quiz,
-            players: game.players.filter(p => p.isConnected),
-            settings: game.settings
-          }
+        const gameState = {
+          gamePin: game.gamePin,
+          status: game.status,
+          currentQuestion: game.currentQuestion,
+          quiz: game.quiz,
+          players: game.players.filter(p => p.isConnected),
+          settings: game.settings
+        };
+
+        console.log('📡 Sending host-joined event with game state:', {
+          gamePin: gameState.gamePin,
+          status: gameState.status,
+          playersCount: gameState.players.length,
+          quizTitle: gameState.quiz?.title
         });
 
-        console.log(`👑 Host joined game ${gamePin}`);
+        // Send game state to host
+        socket.emit('host-joined', {
+          game: gameState
+        });
+
+        console.log(`👑 Host joined game ${gamePin} successfully`);
       } catch (error) {
-        console.error('Join as host error:', error);
+        console.error('❌ Join as host error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack,
+          gamePin: data?.gamePin,
+          userId: data?.userId,
+          socketId: socket.id
+        });
         socket.emit('error', { message: 'Failed to join as host' });
       }
-    });
-
-    // Start game
+    });    // Start game
     socket.on('start-game', async (data) => {
+      console.log('🎮 Start game event received:', {
+        data,
+        socketId: socket.id,
+        timestamp: new Date().toISOString()
+      });
+
       try {
         const { gamePin } = data;
 
+        if (!gamePin) {
+          console.error('❌ No game PIN provided in start-game event');
+          socket.emit('error', { message: 'Game PIN is required' });
+          return;
+        }
+
+        console.log(`📊 Looking for game with PIN: ${gamePin}`);
         const game = await Game.findOne({ gamePin }).populate('quiz');
+        
         if (!game) {
+          console.error(`❌ Game not found with PIN: ${gamePin}`);
           socket.emit('error', { message: 'Game not found' });
           return;
         }
 
+        console.log('✅ Game found:', {
+          gamePin: game.gamePin,
+          status: game.status,
+          quizTitle: game.quiz?.title,
+          playersCount: game.players?.length || 0,
+          currentQuestion: game.currentQuestion
+        });
+
         if (game.status !== 'waiting') {
-          socket.emit('error', { message: 'Game cannot be started' });
+          console.error(`❌ Game cannot be started - current status: ${game.status}`);
+          socket.emit('error', { message: `Game cannot be started - current status: ${game.status}` });
           return;
         }
 
+        console.log('🚀 Starting game - updating status and question...');
         // Update game status
         game.status = 'active';
         game.currentQuestion = 0;
         game.questionStartTime = new Date();
         await game.save();
+        console.log('✅ Game status updated to active');
 
         // Update cache
         activeGames.set(gamePin, {
           status: 'active',
-          currentQuestion: 0,
-          questionStartTime: game.questionStartTime
+          currentQuestion: 0,          questionStartTime: game.questionStartTime
         });
+        console.log('✅ Game cache updated');
+
+        if (!game.quiz.questions || game.quiz.questions.length === 0) {
+          console.error('❌ No questions found in quiz');
+          socket.emit('error', { message: 'Quiz has no questions' });
+          return;
+        }
 
         const firstQuestion = game.quiz.questions[0];
+        console.log('📝 First question:', {
+          question: firstQuestion.question,
+          optionsCount: firstQuestion.options?.length || 0,
+          timeLimit: firstQuestion.timeLimit,
+          points: firstQuestion.points
+        });
+
         const questionData = {
           questionIndex: 0,
           question: firstQuestion.question,
@@ -141,20 +217,29 @@ const socketHandler = (io) => {
           points: firstQuestion.points
         };
 
+        console.log('📡 Broadcasting game-started event to all participants...');
         // Notify all participants
         io.to(gamePin).emit('game-started', {
           questionData,
           totalQuestions: game.quiz.questions.length
         });
+        console.log('✅ Game-started event broadcasted');
 
         // Start question timer
+        console.log(`⏰ Starting question timer for ${firstQuestion.timeLimit} seconds`);
         setTimeout(() => {
           handleQuestionTimeout(gamePin);
         }, firstQuestion.timeLimit * 1000);
 
-        console.log(`🎮 Game ${gamePin} started`);
+        console.log(`🎮 Game ${gamePin} started successfully with ${game.quiz.questions.length} questions`);
       } catch (error) {
-        console.error('Start game error:', error);
+        console.error('❌ Start game error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          stack: error.stack,
+          gamePin: data?.gamePin,
+          socketId: socket.id
+        });
         socket.emit('error', { message: 'Failed to start game' });
       }
     });

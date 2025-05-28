@@ -13,8 +13,17 @@ const socket = io(SOCKET_URL || 'http://localhost:3000', {
 
 // Connection management
 export const connectSocket = () => {
+  console.log('🔌 Attempting to connect socket...', {
+    currentState: socket.connected,
+    socketId: socket.id,
+    url: SOCKET_URL || 'http://localhost:3000'
+  });
+
   if (!socket.connected) {
     socket.connect();
+    console.log('🔄 Socket connection initiated');
+  } else {
+    console.log('✅ Socket already connected');
   }
   return socket;
 };
@@ -39,22 +48,41 @@ export const offEvent = (event, callback) => {
 };
 
 export const emitEvent = (event, data) => {
+  console.log(`📡 Attempting to emit event: ${event}`, {
+    data,
+    socketConnected: socket.connected,
+    socketId: socket.id,
+    timestamp: new Date().toISOString()
+  });
+
   if (socket.connected) {
     socket.emit(event, data);
+    console.log(`✅ Event emitted successfully: ${event}`);
     return true;
   } else {
-    console.warn('⚠️ Socket not connected, cannot emit:', event);
+    console.warn(`⚠️ Socket not connected, cannot emit: ${event}`, {
+      socketState: socket.connected,
+      socketId: socket.id,
+      event,
+      data
+    });
     return false;
   }
 };
 
 // Game hosting specific functions
 export const joinAsHost = (gamePin, userId) => {
-  return emitEvent('join-as-host', { gamePin, userId });
+  console.log('👑 Joining as host:', { gamePin, userId });
+  const result = emitEvent('join-as-host', { gamePin, userId });
+  console.log('Join as host result:', result);
+  return result;
 };
 
 export const startGame = (gamePin) => {
-  return emitEvent('start-game', { gamePin });
+  console.log('🚀 Starting game:', { gamePin });
+  const result = emitEvent('start-game', { gamePin });
+  console.log('Start game emission result:', result);
+  return result;
 };
 
 export const nextQuestion = (gamePin) => {
