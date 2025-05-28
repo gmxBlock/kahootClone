@@ -111,15 +111,6 @@
   box-sizing: border-box;
 }
 
-.register-container .form-group input:focus {
-  outline: none;
-  border-color: #ff6b6b;
-  background: rgba(13, 27, 42, 0.8);
-  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15),
-              0 0 20px rgba(255, 107, 107, 0.2);
-  transform: translateY(-2px);
-}
-
 .register-container .form-group input::placeholder {
   color: #6b8aa0;
   font-style: italic;
@@ -221,7 +212,7 @@
 .register-container .checkbox-label {
   display: flex;
   gap: 0.5rem;
-  cursor: pointer;
+  cursor: default;
   color: #b0c4de;
   font-size: 0.9rem;
   align-items: flex-start;
@@ -247,6 +238,10 @@
   color: #ffffff;
   border-bottom-color: #ff6b6b;
   text-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
+}
+
+#PrivacyPolicy {
+  margin-left: 28px;
 }
 
 /* Responsive Design */

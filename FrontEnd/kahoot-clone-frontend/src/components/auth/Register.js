@@ -172,8 +172,8 @@ const Register = () => {
                 required
                 disabled={loading}
               />
-              <span className="checkmark"></span>
-              I agree to the <Link to="/terms-of-service" target="_blank">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
+              <span className="checkmark" style={{ marginLeft: '10px' }}></span>
+              I agree to the <Link to="/terms-of-service" target="_blank" name="termsOfService">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank" name="privacyPolicy">Privacy Policy</Link>
             </label>
           </div>
           
