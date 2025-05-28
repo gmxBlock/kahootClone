@@ -11,6 +11,33 @@ const socket = io(SOCKET_URL || 'http://localhost:3000', {
   timeout: 10000,
 });
 
+// Add connection event listeners for debugging
+socket.on('connect', () => {
+  console.log('✅ Socket connected successfully!', {
+    socketId: socket.id,
+    url: SOCKET_URL || 'http://localhost:3000'
+  });
+});
+
+socket.on('disconnect', (reason) => {
+  console.log('❌ Socket disconnected:', reason);
+});
+
+socket.on('connect_error', (error) => {
+  console.error('🚨 Socket connection error:', {
+    message: error.message,
+    description: error.description,
+    context: error.context,
+    type: error.type,
+    url: SOCKET_URL || 'http://localhost:3000'
+  });
+  
+  // Provide helpful error messages
+  if (error.message.includes('xhr poll error') || error.message.includes('websocket error')) {
+    console.error('💡 Suggestion: Check if your server is running and accessible at:', SOCKET_URL || 'http://localhost:3000');
+  }
+});
+
 // Connection management
 export const connectSocket = () => {
   console.log('🔌 Attempting to connect socket...', {

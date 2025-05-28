@@ -17,7 +17,13 @@ import QuizList from './components/quiz/QuizList';
 import QuizCreator from './components/quiz/QuizCreator';
 import MyQuizzes from './pages/MyQuizzes';
 import GameLobby from './components/game/GameLobby';
+import { testServerConnection } from './utils/connectionTest';
 import './App.css';
+
+// Test server connection on app start (development only)
+if (process.env.NODE_ENV === 'development') {
+  testServerConnection().catch(console.error);
+}
 
 const App = () => {
   return (

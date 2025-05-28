@@ -98,7 +98,21 @@ app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 3000,
+    socketConnections: io.engine.clientsCount || 0,
+    message: 'Server is running and ready to accept connections'
+  });
+});
+
+// API Health check route
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    api: 'ready',
+    timestamp: new Date().toISOString(),
+    message: 'API endpoints are accessible'
   });
 });
 
