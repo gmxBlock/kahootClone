@@ -4,7 +4,7 @@ import { SOCKET_URL } from '../utils/constants';
 // Create socket connection
 const socket = io(SOCKET_URL || 'http://localhost:3000', {
   transports: ['websocket', 'polling'],
-  autoConnect: false,
+  autoConnect: true, // Enable auto-connection
   reconnection: true,
   reconnectionDelay: 2000, // Increase delay to avoid rate limiting
   reconnectionAttempts: 3, // Reduce attempts to avoid rate limiting

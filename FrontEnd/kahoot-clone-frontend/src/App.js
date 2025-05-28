@@ -19,11 +19,17 @@ import MyQuizzes from './pages/MyQuizzes';
 import GameLobby from './components/game/GameLobby';
 import LoadingSpinnerDemo from './components/test/LoadingSpinnerDemo';
 import { testServerConnection } from './utils/connectionTest';
+import { connectSocket } from './services/socket';
 import './App.css';
 
 // Test server connection on app start (development only)
 if (process.env.NODE_ENV === 'development') {
   testServerConnection().catch(console.error);
+  // Initialize socket connection for testing
+  setTimeout(() => {
+    console.log('🔌 Initializing socket connection...');
+    connectSocket();
+  }, 1000);
 }
 
 const App = () => {
