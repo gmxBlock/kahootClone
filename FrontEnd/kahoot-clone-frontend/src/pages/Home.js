@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { connectSocket, onEvent, offEvent } from '../services/socket';
 import { SOCKET_URL } from '../utils/constants';
+import EnvDebug from '../components/test/EnvDebug';
 import './Home.css';
 
 const Home = () => {
@@ -126,6 +127,9 @@ const Home = () => {
           <div key={index} style={{fontSize: '10px', opacity: 0.8}}>{log}</div>
         ))}
       </div>
+
+      {/* Environment Debug */}
+      <EnvDebug />
 
       {/* Join Game Modal */}
       {showJoinModal && (
