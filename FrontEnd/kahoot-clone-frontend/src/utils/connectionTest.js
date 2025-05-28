@@ -11,7 +11,6 @@ export const testServerConnection = async () => {
     socketReachable: false,
     errors: []
   };
-
   // Test API connection
   try {
     const response = await fetch(`${API_BASE_URL.replace('/api', '')}/api/health`, {
@@ -26,6 +25,9 @@ export const testServerConnection = async () => {
       const data = await response.json();
       console.log('✅ API Health Check Passed:', data);
       results.apiHealth = true;
+    } else if (response.status === 429) {
+      console.error('⚠️ API Rate Limited (429):', 'Too many requests - please wait before trying again');
+      results.errors.push(`API rate limited (429): Wait before making more requests`);
     } else {
       console.error('❌ API Health Check Failed:', response.status, response.statusText);
       results.errors.push(`API returned ${response.status}: ${response.statusText}`);
@@ -68,12 +70,13 @@ export const testServerConnection = async () => {
     results.errors.forEach((error, index) => {
       console.log(`${index + 1}. ${error}`);
     });
-    
-    console.log('\n💡 Troubleshooting suggestions:');
+      console.log('\n💡 Troubleshooting suggestions:');
     console.log('1. Verify your server is running');
     console.log('2. Check the URLs in your .env file');
     console.log('3. Ensure no firewall is blocking the connection');
     console.log('4. Test the health endpoint directly in a browser:', `${API_BASE_URL.replace('/api', '')}/health`);
+    console.log('5. If you see rate limiting (429), wait a few minutes before trying again');
+    console.log('6. For development, consider restarting the server to reset rate limits');
   }
 
   return results;

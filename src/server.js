@@ -57,6 +57,7 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3001',
       'http://127.0.0.1:3001',
+      'http://165.22.18.156:3001', // Your frontend IP
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
@@ -80,11 +81,22 @@ app.use(cors({
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }));
 
-// Rate limiting
+// Rate limiting with environment-specific settings
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  message: 'Too many requests from this IP, please try again later.'
+  max: process.env.NODE_ENV === 'production' 
+    ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100  // Production: 100 requests per 15 min
+    : parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000, // Development: 1000 requests per 15 min
+  message: {
+    error: 'Too many requests from this IP, please try again later.',
+    retryAfter: Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000) / 1000 / 60) + ' minutes'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/health' || req.path === '/api/health';
+  }
 });
 app.use('/api/', limiter);
 
@@ -115,6 +127,19 @@ app.get('/api/health', (req, res) => {
     message: 'API endpoints are accessible'
   });
 });
+
+// Rate limit reset endpoint (development only)
+if (process.env.NODE_ENV !== 'production') {
+  app.post('/api/reset-rate-limit', (req, res) => {
+    // This is a simple way to help during development
+    // In a real scenario, you'd need to access the rate limiter's store
+    res.status(200).json({ 
+      message: 'Rate limit reset requested',
+      note: 'Server restart may be needed for full reset',
+      timestamp: new Date().toISOString()
+    });
+  });
+}
 
 // Handle preflight requests explicitly
 app.options('*', (req, res) => {
