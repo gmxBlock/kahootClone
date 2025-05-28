@@ -1,15 +1,26 @@
 import React from 'react';
 import './LoadingSpinner.css';
 
-const LoadingSpinner = ({ message = "Loading..." }) => {
+const LoadingSpinner = ({ 
+  message = "Loading...", 
+  size = "medium", 
+  overlay = false,
+  color = "primary",
+  className = ""
+}) => {
+  const spinnerClass = `spinner ${size} ${color}`;
+  const containerClass = overlay ? 'loading-overlay' : 'loading-container';
+  const fullClassName = className ? `${containerClass} ${className}` : containerClass;
+
   return (
-    <div className="loading-spinner">
-      <div className="spinner"></div>
-      <p>{message}</p>
-      <div className="loading-dots">
-        <span></span>
-        <span></span>
-        <span></span>
+    <div className={fullClassName}>
+      <div className="loading-content">
+        <div className={spinnerClass}>
+          <div className="spinner-ring"></div>
+          <div className="spinner-ring"></div>
+          <div className="spinner-ring"></div>
+        </div>
+        {message && <p className="loading-message">{message}</p>}
       </div>
     </div>
   );

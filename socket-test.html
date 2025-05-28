@@ -4,10 +4,10 @@
     <title>Socket.IO Connection Test</title>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 </head>
-<body>
+<body style="background-color: #2d2d2d; color: #f0f0f0; font-family: Arial, sans-serif; padding: 20px;"></body>
     <h1>Socket.IO Connection Test</h1>
     <div id="status">Testing...</div>
-    <div id="logs"></div>
+    <div id="logs" style="background-color: #1a1a1a; padding: 10px; border-radius: 5px; margin-top: 20px; max-height: 400px; overflow-y: auto;"></div>
     
     <script>
         const serverUrl = 'http://165.22.18.156:3000';
@@ -16,7 +16,9 @@
         
         function addLog(message, type = 'info') {
             const logEntry = document.createElement('div');
-            logEntry.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            logEntry.style.color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#66c887' : '#ddd';
+            logEntry.style.padding = '3px 0';
+            logEntry.style.borderBottom = '1px solid #333';
             logEntry.textContent = new Date().toLocaleTimeString() + ': ' + message;
             logsDiv.appendChild(logEntry);
             console.log(message);
@@ -31,7 +33,7 @@
         });
         
         socket.on('connect', () => {
-            statusDiv.innerHTML = '<span style="color: green;">✅ CONNECTED</span>';
+            statusDiv.innerHTML = '<span style="color: #66c887;">✅ CONNECTED</span>';
             addLog('Socket connected successfully! ID: ' + socket.id, 'success');
             
             // Test a game event
@@ -43,7 +45,7 @@
         });
         
         socket.on('connect_error', (error) => {
-            statusDiv.innerHTML = '<span style="color: red;">❌ CONNECTION FAILED</span>';
+            statusDiv.innerHTML = '<span style="color: #ff6b6b;">❌ CONNECTION FAILED</span>';
             addLog('Connection error: ' + error.message, 'error');
             
             if (error.message.includes('CORS')) {
@@ -55,7 +57,7 @@
         });
         
         socket.on('disconnect', (reason) => {
-            statusDiv.innerHTML = '<span style="color: orange;">⚠️ DISCONNECTED</span>';
+            statusDiv.innerHTML = '<span style="color: #ffbb3b;">⚠️ DISCONNECTED</span>';
             addLog('Disconnected: ' + reason, 'error');
         });
           // Test regular HTTP endpoint
