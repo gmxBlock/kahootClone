@@ -18,6 +18,7 @@ import QuizCreator from './components/quiz/QuizCreator';
 import MyQuizzes from './pages/MyQuizzes';
 import GameLobby from './components/game/GameLobby';
 import LoadingSpinnerDemo from './components/test/LoadingSpinnerDemo';
+import SocketDebug from './components/test/SocketDebug';
 import { testServerConnection } from './utils/connectionTest';
 import { connectSocket } from './services/socket';
 import './App.css';
@@ -76,6 +77,7 @@ const App = () => {
           } />
           <Route path="/game-lobby" element={<GameLobby />} />
           <Route path="/spinner-demo" element={<LoadingSpinnerDemo />} />
+          <Route path="/socket-debug" element={<SocketDebug />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
         </Routes>
