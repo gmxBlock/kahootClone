@@ -36,52 +36,7 @@ const GameLobby = () => {
   // Get game data from location state
   const { gamePin, isHost, quiz } = location.state || {};
 
-  const initializeGame = useCallback(async () => {
-    try {
-      setLoading(true);
-      
-      // Connect to socket
-      await connectSocket();
-      setSocketConnected(true);
-      
-      // Setup socket event listeners
-      setupSocketListeners();
-      
-      // Get game details from server
-      const response = await getGameForHost(gamePin);
-      if (response.game) {
-        setGameData(response.game);
-        setGameSettings(response.game.settings);
-        setPlayers(response.game.players || []);
-        setGameStatus(response.game.status);
-      }
-      
-      // Join as host
-      joinAsHost(gamePin, user.id);
-      
-    } catch (err) {
-      console.error('Failed to initialize game:', err);
-      setError('Failed to initialize game. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [gamePin, user]);
-
-  useEffect(() => {
-    if (!gamePin || !isHost || !user) {
-      setError('Invalid game session. Please try hosting again.');
-      setLoading(false);
-      return;
-    }
-
-    initializeGame();
-    
-    return () => {
-      cleanup();
-    };
-  }, [gamePin, isHost, user, initializeGame]);
-
-  const setupSocketListeners = () => {
+  const setupSocketListeners = useCallback(() => {
     // Host joined confirmation
     onEvent('host-joined', (data) => {
       console.log('Host joined successfully:', data);
@@ -135,7 +90,49 @@ const GameLobby = () => {
       setError(error.message || 'An error occurred');
       setIsStarting(false);
     });
-  };
+  }, [gamePin, navigate, gameData]);
+
+  const initializeGame = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      // Connect to socket
+      await connectSocket();
+      setSocketConnected(true);
+      
+      // Setup socket event listeners
+      setupSocketListeners();
+      
+      // Get game details from server
+      const response = await getGameForHost(gamePin);
+      if (response.game) {
+        setGameData(response.game);
+        setGameSettings(response.game.settings);
+        setPlayers(response.game.players || []);
+        setGameStatus(response.game.status);
+      }
+      
+      // Join as host
+      joinAsHost(gamePin, user.id);
+      
+    } catch (err) {
+      console.error('Failed to initialize game:', err);
+      setError('Failed to initialize game. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [gamePin, user, setupSocketListeners]);
+
+  useEffect(() => {
+    if (!gamePin || !isHost || !user) {
+      navigate('/my-quizzes');
+      return;
+    }
+
+    initializeGame();
+
+    return cleanup;
+  }, [gamePin, isHost, user, navigate, initializeGame]);
 
   const cleanup = () => {
     // Remove socket listeners
