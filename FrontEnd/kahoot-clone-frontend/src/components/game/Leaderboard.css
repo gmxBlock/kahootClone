@@ -126,9 +126,11 @@
   .player-score {
     font-size: 0.8rem;
   }
-}
-  font-size: 1.3rem;
-  font-weight: 400;
+  
+  .leaderboard-title {
+    font-size: 1.3rem;
+    font-weight: 400;
+  }
 }
 
 .podium-section {
