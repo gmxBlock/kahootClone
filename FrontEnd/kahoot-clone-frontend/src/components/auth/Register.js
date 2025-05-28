@@ -163,20 +163,18 @@ const Register = () => {
           </div>
           
           <div className="form-group checkbox-group">
-            <div className="checkbox-container">
+            <label className="checkbox-label">
               <input
                 type="checkbox"
-                id="agreeToTerms"
                 name="agreeToTerms"
                 checked={formData.agreeToTerms}
                 onChange={handleChange}
                 required
                 disabled={loading}
               />
-              <label htmlFor="agreeToTerms" className="checkbox-text">
-                I agree to the <Link to="/terms-of-service" target="_blank">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
-              </label>
-            </div>
+              <span className="checkmark"></span>
+              I agree to the <Link to="/terms-of-service" target="_blank">Terms of Service</Link> and <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
+            </label>
           </div>
           
           <button 
