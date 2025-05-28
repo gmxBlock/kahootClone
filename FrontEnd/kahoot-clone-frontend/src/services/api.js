@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/constants';
 
-// Use relative URLs since we have setupProxy.js configured
-const API_URL = '/api';
+// Use the configured API base URL from environment variables
+const API_URL = API_BASE_URL;
 
 // Helper function to handle authentication headers
 const getAuthHeaders = () => {
