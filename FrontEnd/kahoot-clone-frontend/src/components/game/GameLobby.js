@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { getGameForHost, updateGameSettings } from '../../services/api';
@@ -9,8 +9,7 @@ import {
   offEvent, 
   joinAsHost, 
   startGame,
-  endGame,
-  isConnected 
+  endGame
 } from '../../services/socket';
 import LoadingSpinner from '../common/LoadingSpinner';
 import './GameLobby.css';
@@ -37,21 +36,7 @@ const GameLobby = () => {
   // Get game data from location state
   const { gamePin, isHost, quiz } = location.state || {};
 
-  useEffect(() => {
-    if (!gamePin || !isHost || !user) {
-      setError('Invalid game session. Please try hosting again.');
-      setLoading(false);
-      return;
-    }
-
-    initializeGame();
-    
-    return () => {
-      cleanup();
-    };
-  }, [gamePin, isHost, user]);
-
-  const initializeGame = async () => {
+  const initializeGame = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -80,7 +65,21 @@ const GameLobby = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [gamePin, user]);
+
+  useEffect(() => {
+    if (!gamePin || !isHost || !user) {
+      setError('Invalid game session. Please try hosting again.');
+      setLoading(false);
+      return;
+    }
+
+    initializeGame();
+    
+    return () => {
+      cleanup();
+    };
+  }, [gamePin, isHost, user, initializeGame]);
 
   const setupSocketListeners = () => {
     // Host joined confirmation

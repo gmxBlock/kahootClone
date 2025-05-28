@@ -89,7 +89,7 @@ const Profile = () => {
     };
 
     fetchProfileData();
-  }, []);
+  }, [user]);
 
   const handleEdit = () => {
     setIsEditing(true);

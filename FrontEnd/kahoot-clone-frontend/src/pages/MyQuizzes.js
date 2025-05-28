@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
 import { fetchMyQuizzes, deleteQuiz, createGame } from '../services/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import './MyQuizzes.css';
 
 const MyQuizzes = () => {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
   
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,11 +17,7 @@ const MyQuizzes = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
 
-  useEffect(() => {
-    loadMyQuizzes();
-  }, [currentPage]);
-
-  const loadMyQuizzes = async () => {
+  const loadMyQuizzes = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetchMyQuizzes(currentPage, 12);
@@ -40,7 +34,11 @@ const MyQuizzes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage]);
+
+  useEffect(() => {
+    loadMyQuizzes();
+  }, [loadMyQuizzes]);
 
   const handleDeleteQuiz = async () => {
     if (!selectedQuiz) return;

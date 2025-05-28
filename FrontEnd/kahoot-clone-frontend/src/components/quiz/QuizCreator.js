@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { createQuiz, fetchQuizById, updateQuiz } from '../../services/api';
@@ -57,15 +57,7 @@ const QuizCreator = () => {
     useAutoResize(questions[8]?.question || '', 3, 8),
     useAutoResize(questions[9]?.question || '', 3, 8)
   ];
-
-  // Load existing quiz data when editing
-  useEffect(() => {
-    if (isEditing && quizId) {
-      loadQuizData();
-    }
-  }, [isEditing, quizId]);
-
-  const loadQuizData = async () => {
+  const loadQuizData = useCallback(async () => {
     try {
       setInitialLoading(true);
       const response = await fetchQuizById(quizId);
@@ -105,7 +97,14 @@ const QuizCreator = () => {
     } finally {
       setInitialLoading(false);
     }
-  };
+  }, [quizId, user.id, navigate]);
+
+  // Load existing quiz data when editing
+  useEffect(() => {
+    if (isEditing && quizId) {
+      loadQuizData();
+    }
+  }, [isEditing, quizId, loadQuizData]);
 
   const handleQuizDataChange = (field, value) => {
     setQuizData(prev => ({ ...prev, [field]: value }));

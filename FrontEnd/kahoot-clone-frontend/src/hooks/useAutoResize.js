@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 /**
  * Custom hook for auto-resizing textareas based on content
@@ -10,7 +10,7 @@ import { useEffect, useRef } from 'react';
 export const useAutoResize = (value, minRows = 3, maxRows = 10) => {
   const textareaRef = useRef(null);
 
-  const resize = () => {
+  const resize = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -40,11 +40,11 @@ export const useAutoResize = (value, minRows = 3, maxRows = 10) => {
     } else {
       textarea.style.overflowY = 'hidden';
     }
-  };
+  }, [minRows, maxRows]);
 
   useEffect(() => {
     resize();
-  }, [value]);
+  }, [value, resize]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -63,7 +63,7 @@ export const useAutoResize = (value, minRows = 3, maxRows = 10) => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [resize]);
 
   return { textareaRef, resize };
 };
