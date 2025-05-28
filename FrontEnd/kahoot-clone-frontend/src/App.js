@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import GameProvider from './context/GameContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import Home from './pages/Home';
@@ -21,9 +22,10 @@ import './App.css';
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <Header />
-        <Routes>
+      <GameProvider>
+        <Router>
+          <Header />
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -65,6 +67,7 @@ const App = () => {
         </Routes>
         <Footer />
       </Router>
+      </GameProvider>
     </AuthProvider>
   );
 };

@@ -74,14 +74,8 @@ const GameLobby = () => {
     onEvent('game-started', (data) => {
       console.log('Game started:', data);
       setGameStatus('active');
-      // Navigate to game play view
-      navigate(`/game/${gamePin}`, { 
-        state: { 
-          isHost: true, 
-          gameData,
-          totalQuestions: data.totalQuestions
-        } 
-      });
+      // Update game context instead of navigating
+      // The GameRoom component will handle the state change
     });
 
     // Error handling
