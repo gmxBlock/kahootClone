@@ -14,12 +14,15 @@ import {
 import LoadingSpinner from '../common/LoadingSpinner';
 import './GameLobby.css';
 
-const GameLobby = () => {
+const GameLobby = ({ gameId, totalQuestions, gameData: propGameData }) => {
+  console.log('🏠 GameLobby component loaded');
+  console.log('🔍 GameLobby props:', { gameId, totalQuestions, propGameData });
+  
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   
-  const [gameData, setGameData] = useState(null);
+  const [gameData, setGameData] = useState(propGameData || null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,8 +36,9 @@ const GameLobby = () => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [gameStatus, setGameStatus] = useState('waiting');
 
-  // Get game data from location state
+  // Get game data from location state or props
   const { gamePin, isHost, quiz } = location.state || {};
+  const finalGamePin = gamePin || gameId;
 
   const setupSocketListeners = useCallback(() => {
     // Host joined confirmation
@@ -102,7 +106,7 @@ const GameLobby = () => {
   const initializeGame = useCallback(async () => {
     console.log('🔧 Initializing game...');
     console.log('Initialization params:', {
-      gamePin,
+      gamePin: finalGamePin,
       isHost,
       userId: user?.id,
       userName: user?.name
@@ -124,7 +128,7 @@ const GameLobby = () => {
       
       // Get game details from server
       console.log('📊 Fetching game details from server...');
-      const response = await getGameForHost(gamePin);
+      const response = await getGameForHost(finalGamePin);
       console.log('Server response:', response);
       
       if (response.game) {
@@ -144,7 +148,7 @@ const GameLobby = () => {
       
       // Join as host
       console.log('👑 Joining as host...');
-      const joinResult = joinAsHost(gamePin, user.id);
+      const joinResult = joinAsHost(finalGamePin, user.id);
       console.log('Join as host result:', joinResult);
       
     } catch (err) {
@@ -152,7 +156,7 @@ const GameLobby = () => {
       console.error('Initialization error details:', {
         message: err.message,
         stack: err.stack,
-        gamePin,
+        gamePin: finalGamePin,
         userId: user?.id
       });
       setError(`Failed to initialize game: ${err.message}`);
@@ -160,18 +164,32 @@ const GameLobby = () => {
       setLoading(false);
       console.log('🏁 Game initialization complete');
     }
-  }, [gamePin, user, setupSocketListeners]);
+  }, [finalGamePin, user, setupSocketListeners]);
 
   useEffect(() => {
-    if (!gamePin || !isHost || !user) {
+    console.log('🔄 GameLobby useEffect triggered');
+    console.log('useEffect params:', {
+      gamePin: finalGamePin,
+      isHost,
+      user: user ? { id: user.id, name: user.name } : null
+    });
+    
+    if (!finalGamePin || !isHost || !user) {
+      console.log('❌ Missing required params, redirecting to my-quizzes');
+      console.log('Missing:', {
+        gamePin: !finalGamePin,
+        isHost: !isHost,
+        user: !user
+      });
       navigate('/my-quizzes');
       return;
     }
 
+    console.log('✅ All params valid, calling initializeGame');
     initializeGame();
 
     return cleanup;
-  }, [gamePin, isHost, user, navigate, initializeGame]);
+  }, [finalGamePin, isHost, user, navigate, initializeGame]);
 
   const cleanup = () => {
     // Remove socket listeners
@@ -186,8 +204,9 @@ const GameLobby = () => {
   };
 
   const handleStartGame = async () => {
-    console.log('🎮 Starting game process...');
-    console.log('Game PIN:', gamePin);
+    console.log('🎮 BUTTON CLICKED - Starting game process...');
+    alert('Button clicked! Check console for logs.');
+    console.log('Game PIN:', finalGamePin);
     console.log('Is Host:', isHost);
     console.log('User:', user);
     console.log('Players count:', players.length);
@@ -213,10 +232,10 @@ const GameLobby = () => {
         setSocketConnected(true);
       }
       
-      console.log('📡 Emitting start-game event with PIN:', gamePin);
+      console.log('📡 Emitting start-game event with PIN:', finalGamePin);
       
       // Emit start game event
-      const success = startGame(gamePin);
+      const success = startGame(finalGamePin);
       console.log('Start game emission result:', success);
       
       if (!success) {
@@ -240,7 +259,7 @@ const GameLobby = () => {
       console.error('Error details:', {
         message: err.message,
         stack: err.stack,
-        gamePin,
+        gamePin: finalGamePin,
         socketConnected,
         playersCount: players.length
       });
@@ -251,7 +270,7 @@ const GameLobby = () => {
 
   const handleEndGame = async () => {
     try {
-      await endGame(gamePin);
+      await endGame(finalGamePin);
       navigate('/my-quizzes');
     } catch (err) {
       console.error('Failed to end game:', err);
@@ -262,7 +281,7 @@ const GameLobby = () => {
   const handleSettingsChange = async (newSettings) => {
     try {
       const updatedSettings = { ...gameSettings, ...newSettings };
-      await updateGameSettings(gamePin, updatedSettings);
+      await updateGameSettings(finalGamePin, updatedSettings);
       setGameSettings(updatedSettings);
     } catch (err) {
       console.error('Failed to update settings:', err);
@@ -271,7 +290,7 @@ const GameLobby = () => {
   };
 
   const copyGamePin = () => {
-    navigator.clipboard.writeText(gamePin).then(() => {
+    navigator.clipboard.writeText(finalGamePin).then(() => {
       // You could add a toast notification here
       console.log('Game PIN copied to clipboard');
     });
@@ -306,7 +325,7 @@ const GameLobby = () => {
       {/* Game PIN Section */}
       <div className="game-pin-section">
         <div className="game-pin-label">Game PIN</div>
-        <div className="game-pin-display">{gamePin}</div>
+        <div className="game-pin-display">{finalGamePin}</div>
         <button onClick={copyGamePin} className="pin-copy-button">
           📋 Copy PIN
         </button>

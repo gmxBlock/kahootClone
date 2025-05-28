@@ -6,26 +6,43 @@ import GamePlay from '../components/game/GamePlay';
 import './GameRoom.css';
 
 const GameRoom = () => {
+  console.log('🏠 GameRoom component loaded');
+  
   const { gameId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { gameState, initializeGame } = useContext(GameContext);
 
   // Extract game data from location state
-  const { isHost, gameData, totalQuestions, playerNickname } = location.state || {};
+  const { isHost, gameData, totalQuestions, playerNickname, gamePin } = location.state || {};
+
+  console.log('🔍 GameRoom props:', {
+    gameId,
+    isHost,
+    gamePin,
+    locationState: location.state
+  });
 
   useEffect(() => {
+    console.log('🔄 GameRoom useEffect triggered');
+    
     // If no location state, redirect to dashboard
     if (!location.state) {
+      console.log('❌ No location state, redirecting to dashboard');
       navigate('/dashboard');
       return;
     }
 
-    // Initialize game context
-    if (gameId && typeof isHost !== 'undefined') {
-      initializeGame(gameId, isHost, playerNickname);
+    // Use gamePin from location state if gameId from params is not available
+    const gameIdentifier = gameId || gamePin;
+    
+    if (gameIdentifier && typeof isHost !== 'undefined') {
+      console.log('✅ Initializing game with identifier:', gameIdentifier);
+      initializeGame(gameIdentifier, isHost, playerNickname);
+    } else {
+      console.log('❌ Missing game identifier or host status');
     }
-  }, [gameId, isHost, playerNickname, location.state, navigate, initializeGame]);
+  }, [gameId, gamePin, isHost, playerNickname, location.state, navigate, initializeGame]);
 
   // Show loading if game state not initialized
   if (!gameState.gamePin) {
@@ -45,8 +62,9 @@ const GameRoom = () => {
       case 'waiting':
         return (
           <GameLobby 
-            gameId={gameId} 
+            gameId={gameId || gamePin} 
             totalQuestions={totalQuestions}
+            gameData={gameData}
           />
         );
       case 'active':

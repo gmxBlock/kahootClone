@@ -61,25 +61,32 @@ const MyQuizzes = () => {
       setActionLoading(null);
     }
   };
-
   const handleStartGame = async (quizId) => {
     try {
       setActionLoading(quizId);
-      const response = await createGame(quizId);
+      console.log('🎮 Starting game for quiz ID:', quizId);
       
-      if (response.success) {
-        navigate(`/game-lobby`, { 
+      const response = await createGame(quizId);
+      console.log('🎮 Create game response:', response);
+      
+      if (response.success || response.game) {
+        const gameData = response.data || response.game;
+        console.log('🎮 Navigating to game room with data:', gameData);
+        
+        navigate(`/game-room`, { 
           state: { 
-            gamePin: response.data.gamePin,
+            gamePin: gameData.gamePin,
             isHost: true,
-            quiz: quizzes.find(q => q._id === quizId)
+            quiz: quizzes.find(q => q._id === quizId),
+            gameData: gameData
           }
         });
       } else {
+        console.error('❌ Failed to create game:', response);
         setError('Failed to start game');
       }
     } catch (err) {
-      console.error('Error starting game:', err);
+      console.error('❌ Error starting game:', err);
       setError('Failed to start game. Please try again.');
     } finally {
       setActionLoading(null);
