@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import { connectSocket, onEvent, offEvent } from '../services/socket';
 import { SOCKET_URL } from '../utils/constants';
 import EnvDebug from '../components/test/EnvDebug';
+import ConnectionDebug from '../components/test/ConnectionDebug';
 import './Home.css';
 
 const Home = () => {
@@ -130,6 +131,9 @@ const Home = () => {
 
       {/* Environment Debug */}
       <EnvDebug />
+
+      {/* Connection Debug - Remove this in production */}
+      <ConnectionDebug />
 
       {/* Join Game Modal */}
       {showJoinModal && (
@@ -264,6 +268,13 @@ const Home = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Debug Components - Remove in production */}
+      <div style={{ margin: '20px 0', padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
+        <h3>Debug Tools</h3>
+        <EnvDebug />
+        <ConnectionDebug />
       </div>
 
       {/* Floating Elements */}
