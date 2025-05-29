@@ -1,41 +1,153 @@
 import { io } from 'socket.io-client';
 import { SOCKET_URL } from '../utils/constants';
 
-// Create socket connection
-const socket = io(SOCKET_URL || 'http://localhost:3000', {
-  transports: ['websocket', 'polling'],
-  autoConnect: true, // Enable auto-connection
-  reconnection: true,
-  reconnectionDelay: 2000, // Increase delay to avoid rate limiting
-  reconnectionAttempts: 3, // Reduce attempts to avoid rate limiting
-  timeout: 15000, // Increase timeout
-  forceNew: false
-});
+// Enhanced socket configuration with environment detection
+const getSocketConfig = () => {
+  const isHTTPS = window.location.protocol === 'https:';
+  const baseURL = SOCKET_URL || 'http://localhost:3000';
+  
+  return {
+    url: baseURL,
+    options: {
+      transports: ['websocket', 'polling'], // Try WebSocket first, fallback to polling
+      upgrade: true, // Allow transport upgrades
+      autoConnect: false, // Manual connection control
+      reconnection: true,
+      reconnectionDelay: 1000, // Start with 1 second
+      reconnectionDelayMax: 10000, // Max 10 seconds
+      reconnectionAttempts: 5, // Reasonable attempts
+      timeout: 20000, // 20 second timeout
+      forceNew: false,
+      // Mixed content handling
+      secure: isHTTPS,
+      rejectUnauthorized: false, // For development with self-signed certificates
+      // Additional options for robustness
+      rememberUpgrade: true,
+      pingTimeout: 60000,
+      pingInterval: 25000,
+      // Authentication support (for JWT tokens)
+      auth: null // Will be set dynamically when needed
+    }
+  };
+};
 
-// Add connection event listeners for debugging
+const config = getSocketConfig();
+console.log('🔧 Socket configuration:', config);
+
+// Create socket connection with enhanced configuration
+const socket = io(config.url, config.options);
+
+// Connection state tracking
+let connectionAttempts = 0;
+const maxConnectionAttempts = 3;
+let lastConnectionAttempt = 0;
+const minTimeBetweenAttempts = 5000; // 5 seconds
+let lastConnectionError = null;
+let connectionState = 'disconnected'; // disconnected, connecting, connected, error
+let authToken = null; // For JWT authentication
+
+// Authentication support
+export const setAuthToken = (token) => {
+  authToken = token;
+  if (socket.auth) {
+    socket.auth.token = token;
+  } else {
+    socket.auth = { token };
+  }
+  console.log('🔐 Auth token set for Socket.IO');
+};
+
+export const clearAuthToken = () => {
+  authToken = null;
+  if (socket.auth) {
+    delete socket.auth.token;
+  }
+  console.log('🔐 Auth token cleared from Socket.IO');
+};
+
+// Graceful degradation - HTTP polling fallback
+const fallbackToHttp = async (endpoint, data) => {
+  try {
+    const API_BASE_URL = SOCKET_URL?.replace('ws:', 'http:').replace('wss:', 'https:') || 'http://localhost:3000';
+    const response = await fetch(`${API_BASE_URL}/api/${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('❌ HTTP fallback failed:', error);
+    throw error;
+  }
+};
+
+// Enhanced connection event listeners with detailed logging
 socket.on('connect', () => {
+  connectionState = 'connected';
+  connectionAttempts = 0;
+  lastConnectionError = null;
+  
   console.log('✅ Socket connected successfully!', {
     socketId: socket.id,
-    url: SOCKET_URL || 'http://localhost:3000'
+    url: config.url,
+    transport: socket.io.engine.transport.name,
+    timestamp: new Date().toISOString(),
+    attempts: connectionAttempts,
+    hasAuth: !!authToken
   });
-  connectionAttempts = 0; // Reset connection attempts on successful connection
+  
+  // Log transport upgrade
+  socket.io.engine.on('upgrade', () => {
+    console.log('🔄 Transport upgraded to:', socket.io.engine.transport.name);
+  });
 });
 
 socket.on('disconnect', (reason) => {
-  console.log('❌ Socket disconnected:', reason);
+  connectionState = 'disconnected';
+  console.log('❌ Socket disconnected:', {
+    reason,
+    timestamp: new Date().toISOString(),
+    wasConnected: socket.connected
+  });
 });
 
 socket.on('connect_error', (error) => {
+  connectionState = 'error';
+  connectionAttempts++;
+  lastConnectionError = error;
+  
   console.error('🚨 Socket connection error:', {
     message: error.message,
     description: error.description,
     context: error.context,
     type: error.type,
-    url: SOCKET_URL || 'http://localhost:3000',
-    attempts: connectionAttempts
+    url: config.url,
+    attempts: connectionAttempts,
+    timestamp: new Date().toISOString(),
+    transport: socket.io.engine?.transport?.name || 'unknown'
   });
   
-  // Provide helpful error messages
+  // Provide helpful error diagnosis
+  if (error.message.includes('CORS')) {
+    console.error('💡 CORS Error Help: Check if server allows your domain in CORS origins');
+  } else if (error.message.includes('timeout')) {
+    console.error('💡 Timeout Error Help: Server might be down or unreachable');
+  } else if (error.message.includes('refused')) {
+    console.error('💡 Connection Refused Help: Check if server is running on the correct port');
+  } else if (error.message.includes('Mixed Content')) {
+    console.error('💡 Mixed Content Help: Use HTTPS for both client and server');
+  } else if (error.message.includes('Authentication')) {
+    console.error('💡 Auth Error Help: Check if authentication token is valid');
+  }
+  
   if (error.message.includes('xhr poll error') || error.message.includes('websocket error')) {
     console.error('💡 Suggestion: Check if your server is running and accessible at:', SOCKET_URL || 'http://localhost:3000');
   }
@@ -47,12 +159,12 @@ socket.on('connect_error', (error) => {
   }
 });
 
-// Connection management with better error handling
-let connectionAttempts = 0;
-const maxConnectionAttempts = 3;
-let lastConnectionAttempt = 0;
-const minTimeBetweenAttempts = 5000; // 5 seconds
+// Error event handler
+socket.on('error', (error) => {
+  console.error('❌ Socket error:', error);
+});
 
+// Connection management with better error handling
 export const connectSocket = () => {
   const now = Date.now();
   
@@ -106,12 +218,14 @@ export const offEvent = (event, callback) => {
   }
 };
 
-export const emitEvent = (event, data) => {
+// Enhanced emit with fallback support
+export const emitEvent = async (event, data, useHttpFallback = false) => {
   console.log(`📡 Attempting to emit event: ${event}`, {
     data,
     socketConnected: socket.connected,
     socketId: socket.id,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    fallbackEnabled: useHttpFallback
   });
 
   if (socket.connected) {
@@ -125,6 +239,18 @@ export const emitEvent = (event, data) => {
       event,
       data
     });
+    
+    // Try HTTP fallback if enabled
+    if (useHttpFallback) {
+      try {
+        console.log(`🔄 Attempting HTTP fallback for: ${event}`);
+        const result = await fallbackToHttp(event, data);
+        console.log(`✅ HTTP fallback successful for: ${event}`, result);
+        return result;
+      } catch (error) {
+        console.error(`❌ HTTP fallback failed for: ${event}`, error);
+      }
+    }
     
     // Attempt to reconnect if we haven't hit the limit
     if (connectionAttempts < maxConnectionAttempts) {
@@ -146,17 +272,17 @@ export const emitEvent = (event, data) => {
   }
 };
 
-// Game hosting specific functions
-export const joinAsHost = (gamePin, userId) => {
+// Game hosting specific functions with fallback support
+export const joinAsHost = async (gamePin, userId, useHttpFallback = true) => {
   console.log('👑 Joining as host:', { gamePin, userId });
-  const result = emitEvent('join-as-host', { gamePin, userId });
+  const result = await emitEvent('join-as-host', { gamePin, userId }, useHttpFallback);
   console.log('Join as host result:', result);
   return result;
 };
 
-export const startGame = (gamePin) => {
+export const startGame = async (gamePin, useHttpFallback = true) => {
   console.log('🚀 Starting game:', { gamePin });
-  const result = emitEvent('start-game', { gamePin });
+  const result = await emitEvent('start-game', { gamePin }, useHttpFallback);
   console.log('Start game emission result:', result);
   return result;
 };
@@ -204,6 +330,14 @@ export const getSocketId = () => {
   return socket.id;
 };
 
+export const getConnectionState = () => {
+  return connectionState;
+};
+
+export const getLastConnectionError = () => {
+  return lastConnectionError;
+};
+
 // Utility functions for debugging and manual control
 export const resetConnectionAttempts = () => {
   connectionAttempts = 0;
@@ -218,7 +352,10 @@ export const getConnectionStatus = () => {
     attempts: connectionAttempts,
     maxAttempts: maxConnectionAttempts,
     lastAttempt: lastConnectionAttempt,
-    url: SOCKET_URL || 'http://localhost:3000'
+    url: SOCKET_URL || 'http://localhost:3000',
+    state: connectionState,
+    lastError: lastConnectionError,
+    hasAuth: !!authToken
   };
 };
 
@@ -231,6 +368,33 @@ export const forceReconnect = () => {
   return connectSocket();
 };
 
+// Environment-specific configuration
+export const configureForEnvironment = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  if (isProduction) {
+    console.log('🏭 Production environment detected');
+    // Production settings - more conservative
+    socket.io.opts.reconnectionAttempts = 3;
+    socket.io.opts.timeout = 30000;
+  } else if (isDevelopment) {
+    console.log('🔧 Development environment detected');
+    // Development settings - more aggressive for debugging
+    socket.io.opts.reconnectionAttempts = 10;
+    socket.io.opts.timeout = 10000;
+  }
+  
+  console.log('⚙️ Environment configuration applied:', {
+    env: process.env.NODE_ENV,
+    reconnectionAttempts: socket.io.opts.reconnectionAttempts,
+    timeout: socket.io.opts.timeout
+  });
+};
+
+// Initialize environment configuration
+configureForEnvironment();
+
 // Make debugging functions available globally
 if (typeof window !== 'undefined') {
   window.socketDebug = {
@@ -238,26 +402,12 @@ if (typeof window !== 'undefined') {
     reset: resetConnectionAttempts,
     reconnect: forceReconnect,
     connect: connectSocket,
-    disconnect: disconnectSocket
+    disconnect: disconnectSocket,
+    setAuth: setAuthToken,
+    clearAuth: clearAuthToken,
+    configure: configureForEnvironment
   };
   console.log('💡 Socket debug tools available: window.socketDebug');
 }
-
-// Socket event listeners setup
-socket.on('connect', () => {
-  console.log('🔌 Connected to socket server');
-});
-
-socket.on('disconnect', () => {
-  console.log('🔌 Disconnected from socket server');
-});
-
-socket.on('error', (error) => {
-  console.error('❌ Socket error:', error);
-});
-
-socket.on('connect_error', (error) => {
-  console.error('❌ Socket connection error:', error);
-});
 
 export default socket;

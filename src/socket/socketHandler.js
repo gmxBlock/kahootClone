@@ -1,14 +1,69 @@
 const Game = require('../models/Game');
 const Quiz = require('../models/Quiz');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
 // Store active games in memory for faster access
 const activeGames = new Map();
 const playerSockets = new Map(); // socketId -> gamePin
+const authenticatedSockets = new Map(); // socketId -> userId
+
+// JWT Authentication middleware for Socket.IO
+const authenticateSocket = async (socket, next) => {
+  try {
+    const token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+      console.log(`🔓 Socket ${socket.id} connecting without authentication token`);
+      // Allow unauthenticated connections for guest players
+      return next();
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    
+    if (!user) {
+      console.log(`❌ Socket ${socket.id} authentication failed - user not found`);
+      return next(new Error('Authentication failed - user not found'));
+    }
+    
+    socket.userId = user._id;
+    socket.user = user;
+    authenticatedSockets.set(socket.id, user._id);
+    
+    console.log(`🔐 Socket ${socket.id} authenticated as user: ${user.username || user.email}`);
+    next();
+  } catch (error) {
+    console.log(`❌ Socket ${socket.id} authentication error:`, error.message);
+    // For JWT errors, still allow connection but without authentication
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      console.log(`🔓 Allowing unauthenticated connection for socket ${socket.id}`);
+      return next();
+    }
+    next(error);
+  }
+};
 
 const socketHandler = (io) => {
+  // Apply authentication middleware
+  io.use(authenticateSocket);
+  
+  // Enhanced connection logging
   io.on('connection', (socket) => {
-    console.log(`🔌 New connection: ${socket.id}`);
+    const userInfo = socket.user ? `${socket.user.username || socket.user.email}` : 'guest';
+    console.log(`🔌 New connection: ${socket.id} (${userInfo})`);
+    
+    // Send connection confirmation with authentication status
+    socket.emit('connection-confirmed', {
+      socketId: socket.id,
+      authenticated: !!socket.user,
+      user: socket.user ? {
+        id: socket.user._id,
+        username: socket.user.username,
+        email: socket.user.email
+      } : null,
+      timestamp: new Date().toISOString()
+    });
 
     // Join game as player
     socket.on('join-game', async (data) => {
@@ -49,197 +104,126 @@ const socketHandler = (io) => {
           playerCount: connectedPlayers.length
         });
 
-        // Send game info to new player
-        socket.emit('joined-successfully', {
-          gamePin,
-          quizTitle: updatedGame.quiz.title,
-          playerCount: connectedPlayers.length,
-          status: game.status
+        socket.emit('joined-game', {
+          game: {
+            gamePin: updatedGame.gamePin,
+            status: updatedGame.status,
+            quiz: updatedGame.quiz,
+            currentQuestion: updatedGame.currentQuestion
+          },
+          playerCount: connectedPlayers.length
         });
 
         console.log(`👤 Player ${nickname} joined game ${gamePin}`);
       } catch (error) {
         console.error('Join game error:', error);
-        socket.emit('error', { message: error.message || 'Failed to join game' });
+        socket.emit('error', { message: 'Failed to join game' });
       }
-    });    // Join game as host
-    socket.on('join-as-host', async (data) => {
-      console.log('👑 Join as host event received:', {
-        data,
-        socketId: socket.id,
-        timestamp: new Date().toISOString()
-      });
+    });
 
+    // Join as host
+    socket.on('join-as-host', async (data) => {
       try {
         const { gamePin, userId } = data;
 
-        if (!gamePin || !userId) {
-          console.error('❌ Missing required data for join-as-host:', { gamePin, userId });
-          socket.emit('error', { message: 'Game PIN and User ID are required' });
-          return;
-        }
-
-        console.log(`📊 Looking for game with PIN: ${gamePin} for user: ${userId}`);
         const game = await Game.findOne({ gamePin }).populate('quiz');
-        
         if (!game) {
-          console.error(`❌ Game not found with PIN: ${gamePin}`);
           socket.emit('error', { message: 'Game not found' });
           return;
         }
 
-        console.log('✅ Game found:', {
-          gamePin: game.gamePin,
-          hostId: game.host.toString(),
-          requestingUserId: userId,
-          status: game.status
-        });
-
-        // Verify host
-        if (game.host.toString() !== userId) {
-          console.error(`❌ Host verification failed - Expected: ${game.host.toString()}, Got: ${userId}`);
-          socket.emit('error', { message: 'Not authorized to host this game' });
+        // Verify host permission
+        if (game.hostId.toString() !== userId) {
+          socket.emit('error', { message: 'Unauthorized to host this game' });
           return;
         }
 
-        console.log('✅ Host verification successful');
-        console.log(`🏠 Joining socket rooms: ${gamePin}-host and ${gamePin}`);
-        socket.join(`${gamePin}-host`);
+        // Set host socket
+        game.hostSocketId = socket.id;
+        await game.save();
+
+        // Join socket room
         socket.join(gamePin);
 
-        const gameState = {
-          gamePin: game.gamePin,
-          status: game.status,
-          currentQuestion: game.currentQuestion,
-          quiz: game.quiz,
-          players: game.players.filter(p => p.isConnected),
-          settings: game.settings
-        };
-
-        console.log('📡 Sending host-joined event with game state:', {
-          gamePin: gameState.gamePin,
-          status: gameState.status,
-          playersCount: gameState.players.length,
-          quizTitle: gameState.quiz?.title
-        });
-
-        // Send game state to host
-        socket.emit('host-joined', {
-          game: gameState
-        });
-
-        console.log(`👑 Host joined game ${gamePin} successfully`);
-      } catch (error) {
-        console.error('❌ Join as host error:', error);
-        console.error('Error details:', {
-          message: error.message,
-          stack: error.stack,
-          gamePin: data?.gamePin,
-          userId: data?.userId,
-          socketId: socket.id
-        });
-        socket.emit('error', { message: 'Failed to join as host' });
-      }
-    });    // Start game
-    socket.on('start-game', async (data) => {
-      console.log('🎮 Start game event received:', {
-        data,
-        socketId: socket.id,
-        timestamp: new Date().toISOString()
-      });
-
-      try {
-        const { gamePin } = data;
-
-        if (!gamePin) {
-          console.error('❌ No game PIN provided in start-game event');
-          socket.emit('error', { message: 'Game PIN is required' });
-          return;
+        // Update active games cache
+        if (!activeGames.has(gamePin)) {
+          activeGames.set(gamePin, {
+            status: game.status,
+            currentQuestion: game.currentQuestion,
+            questionStartTime: game.questionStartTime
+          });
         }
 
-        console.log(`📊 Looking for game with PIN: ${gamePin}`);
+        const connectedPlayers = game.players.filter(p => p.isConnected);
+
+        socket.emit('host-joined', {
+          game: {
+            gamePin: game.gamePin,
+            status: game.status,
+            quiz: game.quiz,
+            currentQuestion: game.currentQuestion,
+            players: connectedPlayers
+          },
+          playerCount: connectedPlayers.length
+        });
+
+        console.log(`👑 Host joined game ${gamePin}`);
+      } catch (error) {
+        console.error('Host join error:', error);
+        socket.emit('error', { message: 'Failed to join as host' });
+      }
+    });
+
+    // Start game
+    socket.on('start-game', async (data) => {
+      try {
+        const { gamePin } = data;
         const game = await Game.findOne({ gamePin }).populate('quiz');
         
         if (!game) {
-          console.error(`❌ Game not found with PIN: ${gamePin}`);
           socket.emit('error', { message: 'Game not found' });
           return;
         }
 
-        console.log('✅ Game found:', {
-          gamePin: game.gamePin,
-          status: game.status,
-          quizTitle: game.quiz?.title,
-          playersCount: game.players?.length || 0,
-          currentQuestion: game.currentQuestion
-        });
-
         if (game.status !== 'waiting') {
-          console.error(`❌ Game cannot be started - current status: ${game.status}`);
-          socket.emit('error', { message: `Game cannot be started - current status: ${game.status}` });
+          socket.emit('error', { message: 'Game is not in waiting state' });
           return;
         }
 
-        console.log('🚀 Starting game - updating status and question...');
         // Update game status
         game.status = 'active';
         game.currentQuestion = 0;
         game.questionStartTime = new Date();
         await game.save();
-        console.log('✅ Game status updated to active');
 
         // Update cache
-        activeGames.set(gamePin, {
-          status: 'active',
-          currentQuestion: 0,          questionStartTime: game.questionStartTime
-        });
-        console.log('✅ Game cache updated');
-
-        if (!game.quiz.questions || game.quiz.questions.length === 0) {
-          console.error('❌ No questions found in quiz');
-          socket.emit('error', { message: 'Quiz has no questions' });
-          return;
+        const gameCache = activeGames.get(gamePin);
+        if (gameCache) {
+          gameCache.status = 'active';
+          gameCache.currentQuestion = 0;
+          gameCache.questionStartTime = game.questionStartTime;
         }
 
         const firstQuestion = game.quiz.questions[0];
-        console.log('📝 First question:', {
-          question: firstQuestion.question,
-          optionsCount: firstQuestion.options?.length || 0,
-          timeLimit: firstQuestion.timeLimit,
-          points: firstQuestion.points
-        });
-
         const questionData = {
           questionIndex: 0,
           question: firstQuestion.question,
-          options: firstQuestion.options.map(opt => ({ text: opt.text })), // Hide correct answers
-          timeLimit: firstQuestion.timeLimit,
-          points: firstQuestion.points
+          options: firstQuestion.options.map(opt => opt.text),
+          timeLimit: firstQuestion.timeLimit || 30,
+          timestamp: new Date().toISOString()
         };
 
-        console.log('📡 Broadcasting game-started event to all participants...');
-        // Notify all participants
-        io.to(gamePin).emit('game-started', {
-          questionData,
-          totalQuestions: game.quiz.questions.length
-        });
-        console.log('✅ Game-started event broadcasted');
+        // Send to all players and host
+        io.to(gamePin).emit('game-started', questionData);
 
-        // Start question timer
-        console.log(`⏰ Starting question timer for ${firstQuestion.timeLimit} seconds`);
+        // Set timeout for this question
         setTimeout(() => {
           handleQuestionTimeout(gamePin);
-        }, firstQuestion.timeLimit * 1000);
+        }, (firstQuestion.timeLimit || 30) * 1000);
 
-        console.log(`🎮 Game ${gamePin} started successfully with ${game.quiz.questions.length} questions`);
+        console.log(`🚀 Game ${gamePin} started`);
       } catch (error) {
-        console.error('❌ Start game error:', error);
-        console.error('Error details:', {
-          message: error.message,
-          stack: error.stack,
-          gamePin: data?.gamePin,
-          socketId: socket.id
-        });
+        console.error('Start game error:', error);
         socket.emit('error', { message: 'Failed to start game' });
       }
     });
@@ -248,39 +232,21 @@ const socketHandler = (io) => {
     socket.on('submit-answer', async (data) => {
       try {
         const { gamePin, questionIndex, selectedOption, timeToAnswer } = data;
-
-        const game = await Game.findOne({ gamePin });
-        if (!game) {
-          socket.emit('error', { message: 'Game not found' });
-          return;
-        }
+        
+        const game = await Game.findOne({ gamePin }).populate('quiz');
+        if (!game) return;
 
         await game.submitAnswer(socket.id, questionIndex, selectedOption, timeToAnswer);
-
-        // Get updated player data
-        const updatedGame = await Game.findOne({ gamePin }).populate('quiz');
-        const player = updatedGame.players.find(p => p.socketId === socket.id);
-        const answer = player.answers.find(a => a.questionIndex === questionIndex);
-
+        
         socket.emit('answer-submitted', {
-          isCorrect: answer.isCorrect,
-          pointsEarned: answer.pointsEarned,
-          currentScore: player.score
+          questionIndex,
+          selectedOption,
+          timestamp: new Date().toISOString()
         });
 
-        // Notify host about answer submission
-        io.to(`${gamePin}-host`).emit('player-answered', {
-          playerNickname: player.nickname,
-          answeredCount: updatedGame.players.filter(p => 
-            p.answers.some(a => a.questionIndex === questionIndex)
-          ).length,
-          totalPlayers: updatedGame.players.filter(p => p.isConnected).length
-        });
-
-        console.log(`✅ Answer submitted by ${player.nickname} in game ${gamePin}`);
+        console.log(`📝 Answer submitted for question ${questionIndex} in game ${gamePin}`);
       } catch (error) {
         console.error('Submit answer error:', error);
-        socket.emit('error', { message: error.message || 'Failed to submit answer' });
       }
     });
 
@@ -288,129 +254,96 @@ const socketHandler = (io) => {
     socket.on('next-question', async (data) => {
       try {
         const { gamePin } = data;
-
         const game = await Game.findOne({ gamePin }).populate('quiz');
-        if (!game) {
-          socket.emit('error', { message: 'Game not found' });
-          return;
-        }
+        
+        if (!game) return;
 
-        const nextQuestionIndex = game.currentQuestion + 1;
-
-        if (nextQuestionIndex >= game.quiz.questions.length) {
+        game.currentQuestion += 1;
+        
+        if (game.currentQuestion >= game.quiz.questions.length) {
           // Game finished
           await endGame(gamePin);
           return;
         }
 
-        // Update game
-        game.currentQuestion = nextQuestionIndex;
         game.questionStartTime = new Date();
         await game.save();
 
         // Update cache
-        activeGames.set(gamePin, {
-          status: 'active',
-          currentQuestion: nextQuestionIndex,
-          questionStartTime: game.questionStartTime
-        });
+        const gameCache = activeGames.get(gamePin);
+        if (gameCache) {
+          gameCache.currentQuestion = game.currentQuestion;
+          gameCache.questionStartTime = game.questionStartTime;
+        }
 
-        const question = game.quiz.questions[nextQuestionIndex];
+        const currentQuestion = game.quiz.questions[game.currentQuestion];
         const questionData = {
-          questionIndex: nextQuestionIndex,
-          question: question.question,
-          options: question.options.map(opt => ({ text: opt.text })),
-          timeLimit: question.timeLimit,
-          points: question.points
+          questionIndex: game.currentQuestion,
+          question: currentQuestion.question,
+          options: currentQuestion.options.map(opt => opt.text),
+          timeLimit: currentQuestion.timeLimit || 30,
+          timestamp: new Date().toISOString()
         };
 
-        io.to(gamePin).emit('next-question', {
-          questionData,
-          currentQuestion: nextQuestionIndex + 1,
-          totalQuestions: game.quiz.questions.length
-        });
+        io.to(gamePin).emit('next-question', questionData);
 
-        // Start question timer
+        // Set timeout for this question
         setTimeout(() => {
           handleQuestionTimeout(gamePin);
-        }, question.timeLimit * 1000);
+        }, (currentQuestion.timeLimit || 30) * 1000);
 
-        console.log(`➡️ Next question in game ${gamePin}: ${nextQuestionIndex}`);
+        console.log(`➡️ Next question ${game.currentQuestion} in game ${gamePin}`);
       } catch (error) {
         console.error('Next question error:', error);
-        socket.emit('error', { message: 'Failed to advance to next question' });
       }
     });
 
-    // Show question results
+    // Show results
     socket.on('show-results', async (data) => {
       try {
-        const { gamePin, questionIndex } = data;
-
+        const { gamePin } = data;
         const game = await Game.findOne({ gamePin }).populate('quiz');
+        
         if (!game) return;
 
-        const question = game.quiz.questions[questionIndex];
-        const correctOptionIndex = question.options.findIndex(opt => opt.isCorrect);
+        const currentQuestion = game.quiz.questions[game.currentQuestion];
+        const correctOptionIndex = currentQuestion.options.findIndex(opt => opt.isCorrect);
 
-        // Calculate question statistics
-        const questionAnswers = game.players.flatMap(p => 
-          p.answers.filter(a => a.questionIndex === questionIndex)
-        );
-
-        const optionStats = question.options.map((option, index) => ({
-          text: option.text,
-          count: questionAnswers.filter(a => a.selectedOption === index).length,
-          isCorrect: option.isCorrect
-        }));
-
-        const correctAnswers = questionAnswers.filter(a => a.isCorrect).length;
-
-        // Calculate current leaderboard
-        const leaderboard = game.players
-          .filter(p => p.isConnected && p.answers.length > 0)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 10)
-          .map((player, index) => ({
-            position: index + 1,
+        // Calculate current scores
+        const currentResults = game.players.map(player => {
+          const answer = player.answers.find(a => a.questionIndex === game.currentQuestion);
+          return {
             nickname: player.nickname,
-            score: player.score
-          }));
+            score: player.score,
+            isCorrect: answer ? answer.isCorrect : false,
+            selectedOption: answer ? answer.selectedOption : null
+          };
+        }).sort((a, b) => b.score - a.score);
 
         io.to(gamePin).emit('question-results', {
-          questionIndex,
           correctOptionIndex,
-          optionStats,
-          correctAnswers,
-          totalAnswers: questionAnswers.length,
-          leaderboard
+          results: currentResults,
+          questionIndex: game.currentQuestion
         });
 
-        console.log(`📊 Results shown for question ${questionIndex} in game ${gamePin}`);
+        console.log(`📊 Results shown for question ${game.currentQuestion} in game ${gamePin}`);
       } catch (error) {
         console.error('Show results error:', error);
       }
     });
 
-    // Pause/Resume game
+    // Pause game
     socket.on('pause-game', async (data) => {
-      try {
-        const { gamePin } = data;
-        await updateGameStatus(gamePin, 'paused');
-        io.to(gamePin).emit('game-paused');
-      } catch (error) {
-        console.error('Pause game error:', error);
-      }
+      const { gamePin } = data;
+      await updateGameStatus(gamePin, 'paused');
+      io.to(gamePin).emit('game-paused');
     });
 
+    // Resume game
     socket.on('resume-game', async (data) => {
-      try {
-        const { gamePin } = data;
-        await updateGameStatus(gamePin, 'active');
-        io.to(gamePin).emit('game-resumed');
-      } catch (error) {
-        console.error('Resume game error:', error);
-      }
+      const { gamePin } = data;
+      await updateGameStatus(gamePin, 'active');
+      io.to(gamePin).emit('game-resumed');
     });
 
     // End game
@@ -423,29 +356,124 @@ const socketHandler = (io) => {
       }
     });
 
-    // Handle disconnection
-    socket.on('disconnect', async () => {
+    // Enhanced disconnect handling with reconnection support
+    socket.on('disconnect', async (reason) => {
+      const userInfo = socket.user ? `${socket.user.username || socket.user.email}` : 'guest';
+      console.log(`❌ Socket disconnected: ${socket.id} (${userInfo}) - Reason: ${reason}`);
+      
       try {
+        // Clean up authentication tracking
+        if (authenticatedSockets.has(socket.id)) {
+          authenticatedSockets.delete(socket.id);
+        }
+        
+        // Handle game disconnection
         const gamePin = playerSockets.get(socket.id);
         if (gamePin) {
           const game = await Game.findOne({ gamePin });
           if (game) {
-            await game.removePlayer(socket.id);
-            
-            const connectedPlayers = game.players.filter(p => p.isConnected);
-            io.to(gamePin).emit('player-left', {
-              socketId: socket.id,
-              playerCount: connectedPlayers.length
-            });
+            // Mark player as disconnected but keep in game for potential reconnection
+            const player = game.players.find(p => p.socketId === socket.id);
+            if (player) {
+              player.isConnected = false;
+              player.disconnectedAt = new Date();
+              await game.save();
+              
+              // Notify other players
+              const connectedPlayers = game.players.filter(p => p.isConnected);
+              socket.to(gamePin).emit('player-disconnected', {
+                player: {
+                  nickname: player.nickname,
+                  socketId: socket.id
+                },
+                playerCount: connectedPlayers.length
+              });
+              
+              console.log(`👤 Player ${player.nickname} disconnected from game ${gamePin}`);
+            }
           }
+          
           playerSockets.delete(socket.id);
         }
-        console.log(`🔌 Disconnected: ${socket.id}`);
       } catch (error) {
-        console.error('Disconnect error:', error);
+        console.error('Disconnect cleanup error:', error);
       }
     });
-  });
+
+    // Handle socket errors
+    socket.on('error', (error) => {
+      const userInfo = socket.user ? `${socket.user.username || socket.user.email}` : 'guest';
+      console.error(`🚨 Socket error for ${socket.id} (${userInfo}):`, error);
+    });
+
+    // Handle reconnection attempts
+    socket.on('reconnect-to-game', async (data) => {
+      try {
+        const { gamePin, nickname, previousSocketId } = data;
+        
+        console.log(`🔄 Reconnection attempt: ${socket.id} trying to rejoin game ${gamePin} as ${nickname}`);
+        
+        const game = await Game.findOne({ gamePin });
+        if (!game) {
+          socket.emit('error', { message: 'Game not found' });
+          return;
+        }
+        
+        // Find player by nickname or previous socket ID
+        const player = game.players.find(p => 
+          p.nickname === nickname || p.socketId === previousSocketId
+        );
+        
+        if (player) {
+          // Update player with new socket ID and mark as connected
+          player.socketId = socket.id;
+          player.isConnected = true;
+          player.disconnectedAt = null;
+          await game.save();
+          
+          // Join socket room
+          socket.join(gamePin);
+          playerSockets.set(socket.id, gamePin);
+          
+          // Send current game state
+          const gameState = {
+            status: game.status,
+            currentQuestion: game.currentQuestion,
+            players: game.players.filter(p => p.isConnected),
+            quiz: await Quiz.findById(game.quiz).select('title questions')
+          };
+          
+          socket.emit('reconnection-successful', gameState);
+          
+          // Notify other players
+          const connectedPlayers = game.players.filter(p => p.isConnected);
+          socket.to(gamePin).emit('player-reconnected', {
+            player: {
+              nickname: player.nickname,
+              socketId: socket.id
+            },
+            playerCount: connectedPlayers.length
+          });
+          
+          console.log(`✅ Player ${nickname} successfully reconnected to game ${gamePin}`);
+        } else {
+          socket.emit('error', { message: 'Player not found in game' });
+        }
+      } catch (error) {
+        console.error('Reconnection error:', error);
+        socket.emit('error', { message: 'Reconnection failed' });
+      }
+    });
+
+    // Heartbeat/ping handling for connection health monitoring
+    socket.on('ping', (data) => {
+      socket.emit('pong', {
+        ...data,
+        serverTime: Date.now()
+      });
+    });
+
+  }); // End of socket connection handler
 
   // Helper functions
   async function handleQuestionTimeout(gamePin) {

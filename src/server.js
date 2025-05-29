@@ -22,20 +22,63 @@ const debugRoutes = require('./routes/debug');
 const app = express();
 const server = http.createServer(app);
 
-// Socket.io setup
+// Socket.io setup with enhanced CORS and error handling
 const io = socketIo(server, {
   cors: {
     origin: [
       "http://localhost:3001",
       "http://127.0.0.1:3001", 
-      "http://165.22.18.156:3001", // Your frontend IP
+      "http://165.22.18.156:3001",
+      "https://jakobmasfelder.de", // HTTPS frontend domain
+      "https://www.jakobmasfelder.de", // www variant
       process.env.FRONTEND_URL
     ].filter(Boolean),
-    methods: ["GET", "POST"],
-    credentials: true
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200
   },
+  transports: ['websocket', 'polling'], // Enable both transports
+  allowEIO3: true, // Support older Socket.IO clients
   pingTimeout: parseInt(process.env.SOCKET_PING_TIMEOUT) || 60000,
-  pingInterval: parseInt(process.env.SOCKET_PING_INTERVAL) || 25000
+  pingInterval: parseInt(process.env.SOCKET_PING_INTERVAL) || 25000,
+  connectTimeout: 45000,
+  // Enhanced connection management
+  maxHttpBufferSize: 1e6, // 1MB buffer
+  httpCompression: true,
+  // Handle connection errors gracefully
+  handlePreflightRequest: (req, res) => {
+    const headers = {
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Origin": req.headers.origin,
+      "Access-Control-Allow-Credentials": true
+    };
+    res.writeHead(200, headers);
+    res.end();
+  },
+  // Authentication middleware for Socket.IO
+  allowRequest: (req, callback) => {
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+      "http://localhost:3001",
+      "http://127.0.0.1:3001", 
+      "http://165.22.18.156:3001",
+      "https://jakobmasfelder.de",
+      "https://www.jakobmasfelder.de",
+      process.env.FRONTEND_URL
+    ].filter(Boolean);
+    
+    console.log('🔐 Socket.IO connection attempt from:', origin);
+    
+    // Allow connections without origin (native apps) or from allowed origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      console.log('✅ Socket.IO connection allowed from:', origin || 'no-origin');
+      callback(null, true);
+    } else {
+      console.log('❌ Socket.IO connection rejected from:', origin);
+      callback('Origin not allowed', false);
+    }
+  }
 });
 
 // Connect to MongoDB
@@ -63,7 +106,9 @@ app.use(cors({
     const allowedOrigins = [
       'http://localhost:3001',
       'http://127.0.0.1:3001',
-      'http://165.22.18.156:3001', // Your frontend IP
+      'http://165.22.18.156:3001',
+      'https://jakobmasfelder.de', // HTTPS frontend domain
+      'https://www.jakobmasfelder.de', // www variant
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
