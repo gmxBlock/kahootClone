@@ -5,11 +5,11 @@ const isLocalhost = window.location.hostname === 'localhost' || window.location.
 // Use proxy in development, direct URLs in production
 export const API_BASE_URL = isDevelopment && isLocalhost 
   ? '/api' // Use proxy in development
-  : process.env.REACT_APP_API_BASE_URL || 'https://165.22.18.156:3000/api';
+  : process.env.REACT_APP_API_BASE_URL || 'http://165.22.18.156:3000/api';
 
 export const SOCKET_URL = isDevelopment && isLocalhost
   ? window.location.origin // Use same origin in development
-  : process.env.REACT_APP_SOCKET_URL || 'https://165.22.18.156:3000';
+  : process.env.REACT_APP_SOCKET_URL || 'http://165.22.18.156:3000';
 
 export const QUIZ_ENDPOINT = `${API_BASE_URL}/quiz`;
 export const AUTH_ENDPOINT = `${API_BASE_URL}/auth`;
