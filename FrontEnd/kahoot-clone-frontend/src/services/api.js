@@ -98,99 +98,71 @@ export const fetchMyQuizzes = async (page = 1, limit = 10) => {
 
 // Profile API functions
 export const getUserProfile = async () => {
-  const response = await axios.get(`${API_URL}/user/profile`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/user/profile`);
   return response.data;
 };
 
 export const updateUserProfile = async (profileData) => {
-  const response = await axios.put(`${API_URL}/user/profile`, profileData, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.put(`${API_URL}/user/profile`, profileData);
   return response.data;
 };
 
 export const getUserDashboard = async () => {
   console.log('API: Fetching user dashboard from:', `${API_URL}/user/dashboard`);
-  const headers = getAuthHeaders();
-  console.log('API: Request headers:', headers);
-  
-  const response = await axios.get(`${API_URL}/user/dashboard`, {
-    headers
-  });
+  const response = await apiClient.get(`${API_URL}/user/dashboard`);
   console.log('API: Dashboard response received:', response.data);
   return response.data;
 };
 
 export const getUserGameHistory = async (page = 1, limit = 10, role = 'all') => {
-  const response = await axios.get(`${API_URL}/user/games`, {
-    params: { page, limit, role },
-    headers: getAuthHeaders()
+  const response = await apiClient.get(`${API_URL}/user/games`, {
+    params: { page, limit, role }
   });
   return response.data;
 };
 
 export const getUserStats = async () => {
-  const response = await axios.get(`${API_URL}/user/stats`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/user/stats`);
   return response.data;
 };
 
 // Game API functions
 export const createGame = async (quizId) => {
-  const response = await axios.post(`${API_URL}/game/create`, { quizId }, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.post(`${API_URL}/game/create`, { quizId });
   return response.data;
 };
 
 export const joinGame = async (gamePin, username) => {
-  const response = await axios.post(`${API_URL}/game/join`, { gamePin, username }, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.post(`${API_URL}/game/join`, { gamePin, username });
   return response.data;
 };
 
 export const getGameStatus = async (gamePin) => {
-  const response = await axios.get(`${API_URL}/game/${gamePin}/status`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/game/${gamePin}/status`);
   return response.data;
 };
 
 export const getGameDetails = async (gamePin) => {
-  const response = await axios.get(`${API_URL}/game/${gamePin}`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/game/${gamePin}`);
   return response.data;
 };
 
 export const getGameForHost = async (gamePin) => {
-  const response = await axios.get(`${API_URL}/game/${gamePin}/host`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/game/${gamePin}/host`);
   return response.data;
 };
 
 export const updateGameSettings = async (gamePin, settings) => {
-  const response = await axios.put(`${API_URL}/game/${gamePin}/settings`, settings, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.put(`${API_URL}/game/${gamePin}/settings`, settings);
   return response.data;
 };
 
 export const endGame = async (gamePin) => {
-  const response = await axios.delete(`${API_URL}/game/${gamePin}`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.delete(`${API_URL}/game/${gamePin}`);
   return response.data;
 };
 
 export const getGameResults = async (gamePin) => {
-  const response = await axios.get(`${API_URL}/game/${gamePin}/results`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/game/${gamePin}/results`);
   return response.data;
 };
