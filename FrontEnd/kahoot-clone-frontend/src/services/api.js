@@ -4,6 +4,58 @@ import { API_BASE_URL } from '../utils/constants';
 // Use the configured API base URL from environment variables
 const API_URL = API_BASE_URL;
 
+console.log('🌐 API Service initialized with URL:', API_URL);
+
+// Create axios instance with default config
+const apiClient = axios.create({
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Add request interceptor for debugging and auth
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    console.log('📤 API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      hasAuth: !!token,
+      headers: config.headers
+    });
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for debugging
+apiClient.interceptors.response.use(
+  (response) => {
+    console.log('📥 API Response:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
+  (error) => {
+    console.error('❌ API Error:', {
+      message: error.message,
+      status: error.response?.status,
+      url: error.config?.url,
+      data: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
+
 // Helper function to handle authentication headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -13,44 +65,33 @@ const getAuthHeaders = () => {
 
 // Quiz API functions
 export const fetchQuizzes = async () => {
-  const response = await axios.get(`${API_URL}/quiz`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/quiz`);
   return response.data;
 };
 
 export const fetchQuizById = async (quizId) => {
-  const response = await axios.get(`${API_URL}/quiz/${quizId}`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.get(`${API_URL}/quiz/${quizId}`);
   return response.data;
 };
 
 export const createQuiz = async (quizData) => {
-  const response = await axios.post(`${API_URL}/quiz`, quizData, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.post(`${API_URL}/quiz`, quizData);
   return response.data;
 };
 
 export const updateQuiz = async (quizId, quizData) => {
-  const response = await axios.put(`${API_URL}/quiz/${quizId}`, quizData, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.put(`${API_URL}/quiz/${quizId}`, quizData);
   return response.data;
 };
 
 export const deleteQuiz = async (quizId) => {
-  const response = await axios.delete(`${API_URL}/quiz/${quizId}`, {
-    headers: getAuthHeaders()
-  });
+  const response = await apiClient.delete(`${API_URL}/quiz/${quizId}`);
   return response.data;
 };
 
 export const fetchMyQuizzes = async (page = 1, limit = 10) => {
-  const response = await axios.get(`${API_URL}/quiz/my-quizzes`, {
-    params: { page, limit },
-    headers: getAuthHeaders()
+  const response = await apiClient.get(`${API_URL}/quiz/my-quizzes`, {
+    params: { page, limit }
   });
   return response.data;
 };

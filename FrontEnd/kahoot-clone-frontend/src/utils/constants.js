@@ -11,6 +11,18 @@ export const SOCKET_URL = isDevelopment
   ? window.location.origin // Use same origin in development
   : process.env.REACT_APP_SOCKET_URL || 'https://165.22.18.156:3000';
 
+// Debug logging
+console.log('🔧 Constants Configuration:', {
+  isDevelopment,
+  isLocalhost,
+  NODE_ENV: process.env.NODE_ENV,
+  hostname: window.location.hostname,
+  API_BASE_URL,
+  SOCKET_URL,
+  env_API_BASE_URL: process.env.REACT_APP_API_BASE_URL,
+  env_SOCKET_URL: process.env.REACT_APP_SOCKET_URL
+});
+
 export const QUIZ_ENDPOINT = `${API_BASE_URL}/quiz`;
 export const AUTH_ENDPOINT = `${API_BASE_URL}/auth`;
 export const USER_ENDPOINT = `${API_BASE_URL}/user`;
