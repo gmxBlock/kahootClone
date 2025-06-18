@@ -1,8 +1,8 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
-  // Always use HTTP for the backend since it doesn't support HTTPS
-  const target = 'http://165.22.18.156:3000';
+  // Use HTTPS for the backend
+  const target = 'https://165.22.18.156:3000';
   
   console.log('Setting up proxy to:', target);
   

@@ -5,6 +5,9 @@ import { API_BASE_URL } from '../utils/constants';
 const API_URL = API_BASE_URL;
 
 console.log('🌐 API Service initialized with URL:', API_URL);
+console.log('🔍 Full API_BASE_URL from constants:', API_BASE_URL);
+console.log('🌍 Current window location:', window.location.href);
+console.log('📍 Current protocol:', window.location.protocol);
 
 // Create axios instance with default config
 const apiClient = axios.create({
