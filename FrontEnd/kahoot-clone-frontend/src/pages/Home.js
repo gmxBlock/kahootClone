@@ -271,9 +271,10 @@ const Home = () => {
       </div>
 
       {/* Debug Components - Remove in production */}
-      <div style={{ margin: '20px 0', padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
-        <h3>Debug Tools</h3>
+      <div style={{ padding: '20px', backgroundColor: '#f0f0f0', margin: '20px 0' }}>
+        <h3>Debug Information</h3>
         <EnvDebug />
+        <hr style={{ margin: '20px 0' }} />
         <ConnectionDebug />
       </div>
 
