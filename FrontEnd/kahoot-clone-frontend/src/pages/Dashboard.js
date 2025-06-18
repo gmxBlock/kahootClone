@@ -16,7 +16,12 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
+        console.log('Dashboard: Checking authentication...');
+        console.log('User:', user);
+        console.log('Token:', localStorage.getItem('token'));
+        
         if (!user || !localStorage.getItem('token')) {
+          console.log('No user or token found, showing demo data');
           // Show demo data for non-authenticated users
           setDashboardData({
             recentGames: [],
@@ -32,6 +37,7 @@ const Dashboard = () => {
           });
           setRecentQuizzes([]);
         } else {
+          console.log('User authenticated, fetching real data...');
           // Fetch real data for authenticated users
           const [dashboardResponse, statsResponse, quizzesResponse] = await Promise.all([
             getUserDashboard(),
@@ -39,6 +45,7 @@ const Dashboard = () => {
             fetchQuizzes()
           ]);
 
+          console.log('Dashboard data received:', dashboardResponse);
           setDashboardData(dashboardResponse);
           setUserStats(statsResponse.stats);
           setRecentQuizzes(quizzesResponse.quizzes || []);

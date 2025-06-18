@@ -7,6 +7,7 @@ const API_URL = API_BASE_URL;
 // Helper function to handle authentication headers
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
+  console.log('API: Getting auth headers, token exists:', !!token);
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -70,9 +71,14 @@ export const updateUserProfile = async (profileData) => {
 };
 
 export const getUserDashboard = async () => {
+  console.log('API: Fetching user dashboard from:', `${API_URL}/user/dashboard`);
+  const headers = getAuthHeaders();
+  console.log('API: Request headers:', headers);
+  
   const response = await axios.get(`${API_URL}/user/dashboard`, {
-    headers: getAuthHeaders()
+    headers
   });
+  console.log('API: Dashboard response received:', response.data);
   return response.data;
 };
 
